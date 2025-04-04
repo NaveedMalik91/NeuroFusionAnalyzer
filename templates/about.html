@@ -5,12 +5,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neural Analysis Platform - About</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_model1.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Custom styles for about page */
+        .about-section {
+            background: linear-gradient(135deg, rgba(128, 70, 135, 0.7), rgba(73, 21, 116, 0.7));
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 20px auto;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+        
+        .about-section h1 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, rgba(149, 54, 238, 0.9), rgba(121, 36, 182, 0.9));
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        
+        .about-section h2 {
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #e0e0e0;
+        }
+        
+        .about-content {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+        
+        .about-content p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .about-content ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .about-content li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .about-content strong {
+            color: #f0f0f0;
+        }
+    </style>
 </head>
 
 <body>
+    <!-- Particles.js Background -->
+    <div id="particles-js"></div>
 
     <!-- Navbar -->
     <nav id="navbar">
@@ -38,7 +92,7 @@
     </nav>
 
     <!-- About Content -->
-    <div class="main-content-container" style="margin-top: 80px;">
+    <div class="main-content-container" style="margin-top: 40px; padding: 20px;">
         <section class="about-section">
             <h1>About the Project</h1>
             <div class="about-content">
@@ -54,10 +108,12 @@
                 <h2>Key Features</h2>
                 <ul>
                     <li>Integration of EEG (electrophysiological) and fMRI (hemodynamic) neural signals</li>
-                    <li>Classification of multiple brain states (Rest, Eyes Open, Eyes Closed)</li>
+                    <li>Classification of brain states (Rest vs. Sleep)</li>
                     <li>Comprehensive visualizations of feature distributions and correlations</li>
                     <li>Analysis of prediction confidence through probability distributions</li>
-                    <li>Confusion matrix visualization for labeled data to assess model performance</li>
+                    <li>Feature importance visualization to identify key predictors</li>
+                    <li>Time-series trend analysis for sequential patterns</li>
+                    <li>Individual entry analysis for specific pattern recognition</li>
                 </ul>
                 
                 <h2>Research Applications</h2>
@@ -75,7 +131,7 @@
                     <li>Backend: Python, Flask</li>
                     <li>Data Processing: NumPy, Pandas</li>
                     <li>Visualization: Matplotlib, Seaborn</li>
-                    <li>Machine Learning: Custom neural network architecture</li>
+                    <li>Machine Learning: TensorFlow/Keras neural network architecture</li>
                     <li>Frontend: HTML, CSS, JavaScript</li>
                 </ul>
             </div>
@@ -94,7 +150,57 @@
     </footer>
 
     <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/particles.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        // Initialize particles.js
+        document.addEventListener('DOMContentLoaded', function() {
+            particlesJS("particles-js", {
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: "#ffffff" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: false },
+                    size: { value: 3, random: true },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: "#ffffff",
+                        opacity: 0.4,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 2,
+                        direction: "none",
+                        random: false,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "repulse" },
+                        onclick: { enable: true, mode: "push" },
+                        resize: true
+                    }
+                },
+                retina_detect: true
+            });
+        });
+        
+        // Function to open report document
+        function openReportDoc() {
+            window.open('/static/assets/Report.pdf', '_blank');
+        }
+        
+        // Function to open research paper
+        function openResearchPDF() {
+            window.open('/static/assets/Research_paper.pdf', '_blank');
+        }
+    </script>
 
 </body>
 
