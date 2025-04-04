@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Analysis Platform</title>
+    <link rel="stylesheet" href="/Neural-Analysis/backend/static/css/style_model1.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div id="particles-js"></div>
+
+    <!-- Navbar -->
+    <nav id="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/Neural-Analysis/backend/templates/index.html">
+                    <img src="/Neural-Analysis/backend/static/assets/logo1.png" alt="logo" class="nav-logo"
+                        loading="lazy">
+                </a>
+            </div>
+
+            <!-- Hamburger Menu -->
+            <div class="hamburger">&#9776;</div>
+
+            <!-- Navigation Links -->
+            <div class="nav-menu">
+                <ul class="nav-links">
+                    <li><a href="/Neural-Analysis/backend/templates/index.html" class="nav-link active">Home</a></li>
+                    <li><a href="/Neural-Analysis/backend/templates/model1.html" class="nav-link">Sleep Analysis</a></li>
+                    <li><a href="javascript:void(0);" class="nav-link" onclick="openReportDoc()">Report</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- File upload section -->
+    <section class="upload-section">
+        <div class="upload-container">
+            <h1 class="upload-title">Upload EEG-fMRI Data of Humans during Sleep (.CSV)</h1>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="drop-area" id="dropArea">
+                    <p>Drag & Drop your file here or</p>
+                    <input type="file" id="fileInput" name="file" hidden>
+                    <button type="button" class="upload-btn" onclick="document.getElementById('fileInput').click();">Browse</button>
+                    <p id="fileName">No file selected</p>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="submit-btn">Run</button>
+                    <button type="reset" class="reset-btn">Reset</button>
+                </div>
+            </form>
+        </div>
+    </section>
+    
+
+    <div class="result">
+        <div id="prediction">
+            <h3>Prediction:</h3>
+            <p id="predictionText">Loading...</p>
+        </div>
+
+        <div id="visualisation">
+            <h3>Visualizations:</h3>
+            <div id="plotContainer">
+                <!-- Multiple plots will be injected here dynamically -->
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="mailto:C2K221152@ms.pict.edu" target="_blank"><i class="fas fa-envelope"></i></a>
+            <a href="https://github.com/NaveedMalik91" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://www.linkedin.com/in/naveed-malik-944825257/" target="_blank"><i
+                    class="fab fa-linkedin"></i></a>
+        </div>
+        <p>&copy; 2025 Multimodal Neural-Analysis.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/Neural-Analysis/backend/static/js/particles.min.js"></script>
+    <script src="/Neural-Analysis/backend/static/js/script.js"></script>
+
+</body>
+
+</html>

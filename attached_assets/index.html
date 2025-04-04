@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Analysis Platform</title>
+    <link rel="stylesheet" href="/Neural-Analysis/backend/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav id="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/Neural-Analysis/backend/templates/index.html">
+                    <img src="/Neural-Analysis/backend/static/assets/logo1.png" alt="logo" class="nav-logo"
+                        loading="lazy">
+                </a>
+            </div>
+
+            <!-- Hamburger Menu -->
+            <div class="hamburger">&#9776;</div>
+
+            <!-- Navigation Links -->
+            <div class="nav-menu">
+                <ul class="nav-links">
+                    <li><a href="/Neural-Analysis/backend/templates/index.html" class="nav-link active">Home</a></li>
+                    <li><a href="/Neural-Analysis/backend/templates/model1.html" class="nav-link">Sleep Analysis</a></li>
+                    <li><a href="javascript:void(0);" class="nav-link" onclick="openReportDoc()">Report</a></li>
+                    <li><a href="/Neural-Analysis/backend/templates/about.html" class="nav-link">About</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>Multimodal Neuro Imaging Techniques</h1>
+                <p>Advanced neural imaging platform that combines multiple imaging modalities including MRI, fMRI, DTI,
+                    and PET scans. Our AIML-powered solutions provide comprehensive brain structure and function
+                    analysis for research and clinical applications.</p>
+                <div class="buttons">
+                    <button class="btn black" onclick="openResearchPDF()">View Research</button>
+                </div>
+            </div>
+            <div class="hero-animation">
+                <!-- Updated: Using MP4 instead of Lottie -->
+                <video autoplay loop muted playsinline class="hero-video" >
+                    <source src="/Neural-Analysis/backend/static/videos/brainnn.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Section -->
+    <div class="main-content-container">
+        <section class="main-content-section main-content-layout">
+            <div class="main-content-text">
+                <h2>Dataset-1: Simultaneous EEG and fMRI signals during sleep from humans.</h2>
+                <p>
+
+                    This dataset includes EEG-fMRI recordings from 33 healthy participants at Pennsylvania State
+                    University. Each session consists of anatomical imaging, resting-state fMRI (before and after a
+                    visual-motor adaptation task), and multiple sleep sessions.
+
+                    EEG was recorded using a 32-channel MR-compatible system at 5000 Hz, synchronized with fMRI
+                    triggers. Sleep stages (wakefulness, NREM1-3) were manually scored and stored in TSV files. fMRI
+                    data were collected on a 3T Siemens Prisma scanner using MPRAGE for anatomical images and EPI for
+                    BOLD signals.
+
+                    The dataset provides multimodal neural signals to study resting-state and sleep-related brain
+                    activity.</p>
+                <a href="https://openneuro.org/datasets/ds003768/versions/1.0.11" target="_blank"><button class="main-content-btn">Learn More</button></a>
+            </div>
+            <div class="main-content-image">
+                <img src="/Neural-Analysis/backend/static/assets/image2.jpg" alt="Digital Transformation">
+            </div>
+        </section>
+
+        
+
+        <section class="main-content-section main-content-layout-reverse">
+            <div class="main-content-text">
+                <h2>How to Predict</h2>
+                <ol>
+                    <li>
+                        <h3>Step 1: Upload Your Dataset</h3>
+                        <p>User selects and uploads a CSV file containing EEG (Alpha, Beta, Gamma, Delta) and fMRI (Mean BOLD, Variance BOLD) features.</p>
+                    </li>
+                    <li>
+                        <h3>Step 2: Data validation</h3>
+                        <p>Backend (Flask) validates the input file to match the trained model's format.</p>
+                    </li>
+                    <li>
+                        <h3>Step 3: Read CSV file</h3>
+                        <p>Flask reads the CSV, extracts required columns (Alpha, Beta, Gamma, Delta, Mean BOLD, Variance BOLD). Check for missing/invalid values and scale values using saved scaler.pkl file</p>
+                    </li>
+                    <li>
+                        <h3>Step 4: Model Inference</h3>
+                        <p>The model is loaded [saved as .h5 file] and preprocessed features are sent to the deployed model for data analysis and prediction.</p>
+                    </li>
+                    <li>
+                        <h3>Step 5: Task Decoding</h3>
+                        <p>Convert the model's label-encoded prediction (0/1) into a human-readable task label using the task encoding file.</p>
+                    </li>
+                    <li>
+                        <h3>Step 6: Return Prediction</h3>
+                        <p>Send the predicted task label and any relevant visualizations back to the frontend.</p>
+                    </li>
+                    <li>
+                        <h3>Step 7: Display Prediction and Visualisation</h3>
+                        <p>Display the predicted task label and visualizations (EEG/fMRI plots) on the UI.</p>
+                    </li>
+                </ol>
+                <a href="/Neural-Analysis/backend/templates/model1.html"><button class="main-content-btn">Get Started</button></a>
+            </div>
+            <div class="main-content-image">
+                <img src="/Neural-Analysis/backend/static/assets/image.png" alt="How to Predict">
+            </div>
+        </section>
+    </div>
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="mailto:C2K221152@ms.pict.edu" target="_blank"><i class="fas fa-envelope"></i></a>
+            <a href="https://github.com/NaveedMalik91" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://www.linkedin.com/in/naveed-malik-944825257/" target="_blank"><i
+                    class="fab fa-linkedin"></i></a>
+        </div>
+        <p>&copy; 2025 Multimodal Neural-Analysis.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="/Neural-Analysis/backend/static/js/script.js"></script>
+
+</body>
+
+</html>
