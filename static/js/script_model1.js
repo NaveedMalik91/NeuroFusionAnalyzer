@@ -219,27 +219,66 @@ function displayResults(data) {
     plotContainer.innerHTML = ''; // Clear previous plots
     
     if (data.visualizations) {
-        // Create the visualization elements
+        // Create header for visualizations section
+        const visualizationHeader = document.createElement('h3');
+        visualizationHeader.className = 'visualization-header';
+        visualizationHeader.textContent = 'Brain State Analysis Visualizations';
+        visualizationHeader.style.textAlign = 'center';
+        visualizationHeader.style.margin = '30px 0 20px';
+        visualizationHeader.style.padding = '10px';
+        visualizationHeader.style.borderBottom = '2px solid rgba(255, 255, 255, 0.1)';
+        plotContainer.appendChild(visualizationHeader);
+        
+        // Create the visualization elements - put them in a grid layout
+        const visualGrid = document.createElement('div');
+        visualGrid.className = 'visualization-grid';
+        visualGrid.style.display = 'grid';
+        visualGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(450px, 1fr))';
+        visualGrid.style.gap = '30px';
+        visualGrid.style.margin = '20px 0';
+        plotContainer.appendChild(visualGrid);
+        
+        // Add all visualizations
         const visuals = data.visualizations;
         
-        // Add feature distributions
-        if (visuals.feature_distributions) {
-            addPlot(plotContainer, 'EEG & fMRI Feature Distributions', visuals.feature_distributions);
+        // Overall predictions pie chart
+        if (visuals.overall_predictions) {
+            addPlot(visualGrid, 'Overall Distribution of Brain States', visuals.overall_predictions);
         }
         
-        // Add confusion matrix if available
-        if (visuals.confusion_matrix) {
-            addPlot(plotContainer, 'Confusion Matrix', visuals.confusion_matrix);
-        }
-        
-        // Add correlations
-        if (visuals.feature_correlations) {
-            addPlot(plotContainer, 'EEG-FMRI Feature Correlations', visuals.feature_correlations);
-        }
-        
-        // Add prediction distributions
+        // Prediction distribution histogram
         if (visuals.prediction_distributions) {
-            addPlot(plotContainer, 'Prediction Distributions', visuals.prediction_distributions);
+            addPlot(visualGrid, 'Prediction Probability Distributions', visuals.prediction_distributions);
+        }
+        
+        // Feature importance
+        if (visuals.feature_importance) {
+            addPlot(visualGrid, 'Feature Importance in Classification', visuals.feature_importance);
+        }
+        
+        // Probability heatmap
+        if (visuals.probability_heatmap) {
+            addPlot(visualGrid, 'Probability Heatmap of Brain States', visuals.probability_heatmap);
+        }
+        
+        // Feature distributions
+        if (visuals.feature_distributions) {
+            addPlot(visualGrid, 'EEG & fMRI Feature Distributions', visuals.feature_distributions);
+        }
+        
+        // Feature correlations
+        if (visuals.feature_correlations) {
+            addPlot(visualGrid, 'EEG-fMRI Feature Correlations', visuals.feature_correlations);
+        }
+        
+        // Time series trends
+        if (visuals.time_series_trends) {
+            addPlot(visualGrid, 'Temporal Dynamics of Brain Activity', visuals.time_series_trends);
+        }
+        
+        // Sample entries analysis
+        if (visuals.sample_entries) {
+            addPlot(visualGrid, 'Individual Entry Analysis', visuals.sample_entries);
         }
     }
     
@@ -421,14 +460,23 @@ function createMetricCard(value, label) {
 function addPlot(container, title, base64Data) {
     const plotItem = document.createElement('div');
     plotItem.className = 'plotItem';
+    plotItem.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+    plotItem.style.borderRadius = '8px';
+    plotItem.style.padding = '15px';
+    plotItem.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
     
     const plotTitle = document.createElement('h4');
     plotTitle.textContent = title;
+    plotTitle.style.textAlign = 'center';
+    plotTitle.style.marginBottom = '15px';
+    plotTitle.style.color = 'rgba(255, 255, 255, 0.9)';
     plotItem.appendChild(plotTitle);
     
     const img = document.createElement('img');
     img.src = `data:image/png;base64,${base64Data}`;
     img.alt = title;
+    img.style.maxWidth = '100%';
+    img.style.borderRadius = '4px';
     
     plotItem.appendChild(img);
     container.appendChild(plotItem);
