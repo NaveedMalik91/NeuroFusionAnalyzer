@@ -6,14 +6,14 @@ document.addEventListener('DOMContentLoaded', function() {
     particlesJS("particles-js", {
         particles: {
             number: { value: 80, density: { enable: true, value_area: 800 } },
-            color: { value: ["#8a2be2", "#9370db", "#8a2be2", "#9400d3", "#800080"] },
+            color: { value: "#ffffff" },
             shape: { type: "circle" },
-            opacity: { value: 0.6, random: true },
+            opacity: { value: 0.5, random: false },
             size: { value: 3, random: true },
             line_linked: {
                 enable: true,
                 distance: 150,
-                color: "#8a2be2",
+                color: "#ffffff",
                 opacity: 0.4,
                 width: 1
             },
@@ -33,10 +33,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 onhover: { enable: true, mode: "repulse" },
                 onclick: { enable: true, mode: "push" },
                 resize: true
-            },
-            modes: {
-                repulse: { distance: 100, duration: 0.4 },
-                push: { particles_nb: 4 }
             }
         },
         retina_detect: true
@@ -356,11 +352,25 @@ function addPaginationControls(container) {
     
     const paginationContainer = document.createElement('div');
     paginationContainer.className = 'pagination-controls';
+    paginationContainer.style.display = 'flex';
+    paginationContainer.style.justifyContent = 'center';
+    paginationContainer.style.gap = '15px';
+    paginationContainer.style.marginTop = '20px';
     
     // Previous button
     const prevButton = document.createElement('button');
     prevButton.textContent = '← Previous';
+    prevButton.style.padding = '8px 15px';
+    prevButton.style.borderRadius = '5px';
+    prevButton.style.border = 'none';
+    prevButton.style.background = 'rgba(138, 43, 226, 0.7)';
+    prevButton.style.color = 'white';
+    prevButton.style.cursor = 'pointer';
     prevButton.disabled = currentPage === 0;
+    if (prevButton.disabled) {
+        prevButton.style.opacity = '0.5';
+        prevButton.style.cursor = 'not-allowed';
+    }
     
     prevButton.addEventListener('click', function() {
         if (currentPage > 0) {
@@ -373,12 +383,24 @@ function addPaginationControls(container) {
     // Page info
     const pageInfo = document.createElement('div');
     pageInfo.textContent = `Page ${currentPage + 1} of ${totalPages}`;
-    pageInfo.className = 'page-info';
+    pageInfo.style.display = 'flex';
+    pageInfo.style.alignItems = 'center';
+    pageInfo.style.fontWeight = '500';
     
     // Next button
     const nextButton = document.createElement('button');
     nextButton.textContent = 'Next →';
+    nextButton.style.padding = '8px 15px';
+    nextButton.style.borderRadius = '5px';
+    nextButton.style.border = 'none';
+    nextButton.style.background = 'rgba(138, 43, 226, 0.7)';
+    nextButton.style.color = 'white';
+    nextButton.style.cursor = 'pointer';
     nextButton.disabled = currentPage >= totalPages - 1;
+    if (nextButton.disabled) {
+        nextButton.style.opacity = '0.5';
+        nextButton.style.cursor = 'not-allowed';
+    }
     
     nextButton.addEventListener('click', function() {
         if (currentPage < totalPages - 1) {
@@ -452,9 +474,11 @@ function addProgressBarLegend(container) {
     const legendContainer = document.createElement('div');
     legendContainer.className = 'progress-bar-legend';
     legendContainer.style.display = 'flex';
+    legendContainer.style.alignItems = 'center';
     legendContainer.style.justifyContent = 'center';
     legendContainer.style.gap = '20px';
-    legendContainer.style.marginBottom = '15px';
+    legendContainer.style.marginTop = '15px';
+    legendContainer.style.marginBottom = '10px';
     
     // Rest legend item
     const restLegend = document.createElement('div');
@@ -464,13 +488,12 @@ function addProgressBarLegend(container) {
     
     const restColor = document.createElement('div');
     restColor.style.width = '20px';
-    restColor.style.height = '10px';
+    restColor.style.height = '20px';
+    restColor.style.borderRadius = '4px';
     restColor.style.background = 'linear-gradient(to right, #3498db, #2980b9)';
-    restColor.style.borderRadius = '5px';
     
     const restLabel = document.createElement('span');
-    restLabel.textContent = 'Rest';
-    restLabel.style.fontSize = '0.9rem';
+    restLabel.textContent = 'Rest State';
     
     restLegend.appendChild(restColor);
     restLegend.appendChild(restLabel);
@@ -483,21 +506,20 @@ function addProgressBarLegend(container) {
     
     const sleepColor = document.createElement('div');
     sleepColor.style.width = '20px';
-    sleepColor.style.height = '10px';
+    sleepColor.style.height = '20px';
+    sleepColor.style.borderRadius = '4px';
     sleepColor.style.background = 'linear-gradient(to right, #e74c3c, #c0392b)';
-    sleepColor.style.borderRadius = '5px';
     
     const sleepLabel = document.createElement('span');
-    sleepLabel.textContent = 'Sleep';
-    sleepLabel.style.fontSize = '0.9rem';
+    sleepLabel.textContent = 'Sleep State';
     
     sleepLegend.appendChild(sleepColor);
     sleepLegend.appendChild(sleepLabel);
     
-    // Add legends to container
+    // Add both legends to the container
     legendContainer.appendChild(restLegend);
     legendContainer.appendChild(sleepLegend);
     
-    // Add to main container
+    // Add the legend container to the main container
     container.appendChild(legendContainer);
 }

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neural Analysis Platform - Sleep Analysis</title>
+    <title>Neural Analysis Platform</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style_model1.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -33,7 +33,6 @@
                     <li><a href="{{ url_for('home') }}" class="nav-link">Home</a></li>
                     <li><a href="{{ url_for('model1') }}" class="nav-link active">Sleep Analysis</a></li>
                     <li><a href="javascript:void(0);" class="nav-link" onclick="openReportDoc()">Report</a></li>
-                    <li><a href="{{ url_for('about') }}" class="nav-link">About</a></li>
                 </ul>
             </div>
         </div>
@@ -41,7 +40,7 @@
     <!-- File upload section -->
     <section class="upload-section">
         <div class="upload-container">
-            <h1 class="upload-title">Upload EEG-fMRI Data for Sleep Analysis (.CSV)</h1>
+            <h1 class="upload-title">Upload EEG-fMRI Data of Humans during Sleep (.CSV)</h1>
             <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
                 <div class="drop-area" id="dropArea">
                     <p>Drag & Drop your file here or</p>
@@ -51,27 +50,46 @@
                 </div>
                 <p><a href="{{ url_for('static', filename='assets/sample_data.csv') }}" download="sample_data.csv" class="sample-link">Download Sample Dataset</a>
                 <div class="button-group">
-                    <button type="submit" class="submit-btn">Run Analysis</button>
+                    <button type="submit" class="submit-btn">Run</button>
                     <button type="reset" class="reset-btn">Reset</button>
                 </div>
             </form>
         </div>
     </section>
+    
 
-    <!-- Prediction Results Section -->
-    <section class="results-section" style="display: none;">
-        <div class="results-container">
-            <h2 class="results-title">Analysis Results</h2>
-            
-            <div id="predictionText" class="prediction-text"></div>
-            
-            <div id="individualPredictions" class="individual-predictions"></div>
-            
-            <div id="plotContainer" class="visualization-container">
-                <!-- Visualizations will be dynamically inserted here -->
+    <div class="result" style="display: none;">
+        <div id="prediction">
+            <h3>Prediction Results:</h3>
+            <div class="prediction-container">
+                <div class="prediction-section">
+                    <h4>Overall Classification</h4>
+                    <div id="overall-percentages"></div>
+                </div>
+                <div class="prediction-section">
+                    <h4>Model Confidence</h4>
+                    <div id="model-metrics"></div>
+                </div>
+                <div class="prediction-section">
+                    <h4>Individual Predictions</h4>
+                    <div id="prediction-details">
+                        <button id="togglePredictions">Show/Hide Detailed Predictions</button>
+                        <div id="detailed-predictions" style="display: none; max-height: 300px; overflow-y: auto; margin-top: 10px;"></div>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+
+        <div id="visualisation">
+            <h3>Visualizations:</h3>
+            <div id="plotContainer">
+                <!-- Multiple plots will be injected here dynamically -->
+            </div>
+        </div>
+    </div>
+
+
+
 
     <!-- Footer -->
     <footer class="footer">
@@ -87,170 +105,7 @@
     <!-- Scripts -->
     <script src="{{ url_for('static', filename='js/particles.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/script_model.js') }}"></script>
-    <script>
-        // Initialize particles.js
-        document.addEventListener('DOMContentLoaded', function() {
-            particlesJS("particles-js", {
-                particles: {
-                    number: { value: 80, density: { enable: true, value_area: 800 } },
-                    color: { value: ["#8a2be2", "#9370db", "#8a2be2", "#9400d3", "#800080"] },
-                    shape: { type: "circle" },
-                    opacity: { value: 0.6, random: true },
-                    size: { value: 3, random: true },
-                    line_linked: {
-                        enable: true,
-                        distance: 150,
-                        color: "#8a2be2",
-                        opacity: 0.4,
-                        width: 1
-                    },
-                    move: {
-                        enable: true,
-                        speed: 2,
-                        direction: "none",
-                        random: false,
-                        straight: false,
-                        out_mode: "out",
-                        bounce: false
-                    }
-                },
-                interactivity: {
-                    detect_on: "canvas",
-                    events: {
-                        onhover: { enable: true, mode: "repulse" },
-                        onclick: { enable: true, mode: "push" },
-                        resize: true
-                    },
-                    modes: {
-                        repulse: { distance: 100, duration: 0.4 },
-                        push: { particles_nb: 4 }
-                    }
-                },
-                retina_detect: true
-            });
-        });
-        
-        // Function to open report document
-        function openReportDoc() {
-            window.open('/static/assets/Report.pdf', '_blank');
-        }
-        
-        // File upload form handling
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('uploadForm');
-            const fileInput = document.getElementById('fileInput');
-            const dropArea = document.getElementById('dropArea');
-            const fileNameDisplay = document.getElementById('fileName');
-            const resultsSection = document.querySelector('.results-section');
-            
-            // Display selected filename
-            fileInput.addEventListener('change', function() {
-                if (this.files.length > 0) {
-                    fileNameDisplay.textContent = this.files[0].name;
-                } else {
-                    fileNameDisplay.textContent = 'No file selected';
-                }
-            });
-            
-            // Drag and drop functionality
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, preventDefaults, false);
-            });
-            
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropArea.addEventListener(eventName, highlight, false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, unhighlight, false);
-            });
-            
-            function highlight() {
-                dropArea.classList.add('highlight');
-            }
-            
-            function unhighlight() {
-                dropArea.classList.remove('highlight');
-            }
-            
-            dropArea.addEventListener('drop', handleDrop, false);
-            
-            function handleDrop(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                fileInput.files = files;
-                fileNameDisplay.textContent = files[0].name;
-            }
-            
-            // Form submission
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Validate that a file has been selected
-                if (!fileInput.files.length) {
-                    alert('Please select a CSV file to upload');
-                    return;
-                }
-                
-                // Validate file format using the script_model.js function
-                const file = fileInput.files[0];
-                if (!file.name.endsWith('.csv')) {
-                    alert('Please upload a CSV file');
-                    return;
-                }
-                
-                // Show loading state
-                window.modelFunctions.setLoadingState(true);
-                
-                // Additional validation using client-side function
-                window.modelFunctions.validateCSVFile(file)
-                    .then(() => {
-                        // File is valid, submit the form
-                        const formData = new FormData(form);
-                        
-                        fetch('/upload', {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            // Display the results section
-                            resultsSection.style.display = 'block';
-                            
-                            // Process the response
-                            window.modelFunctions.processResponse(data);
-                            
-                            // Reset loading state
-                            window.modelFunctions.setLoadingState(false);
-                            
-                            // Scroll to results
-                            resultsSection.scrollIntoView({ behavior: 'smooth' });
-                        })
-                        .catch(error => {
-                            window.modelFunctions.showErrorMessage(`Error: ${error.message}`);
-                            window.modelFunctions.setLoadingState(false);
-                        });
-                    })
-                    .catch(error => {
-                        // Show validation error
-                        window.modelFunctions.showErrorMessage(error);
-                        window.modelFunctions.setLoadingState(false);
-                    });
-            });
-            
-            // Reset button
-            form.addEventListener('reset', function() {
-                fileNameDisplay.textContent = 'No file selected';
-                resultsSection.style.display = 'none';
-            });
-        });
-    </script>
+    <script src="{{ url_for('static', filename='js/script_model1.js') }}"></script>
 
 </body>
 
