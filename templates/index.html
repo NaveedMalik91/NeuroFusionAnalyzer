@@ -44,7 +44,7 @@
         }
         
         #navbar {
-            background-color: rgba(180, 168, 168, 0.8);
+            background-color: rgba(20, 20, 20, 0.8);
             backdrop-filter: blur(10px);
         }
     </style>
@@ -184,6 +184,59 @@
     <!-- Scripts -->
     <script src="{{ url_for('static', filename='js/particles.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        // Initialize particles.js
+        document.addEventListener('DOMContentLoaded', function() {
+            particlesJS("particles-js", {
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: ["#8a2be2", "#9370db", "#8a2be2", "#9400d3", "#800080"] },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.6, random: true },
+                    size: { value: 3, random: true },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: "#8a2be2",
+                        opacity: 0.4,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 2,
+                        direction: "none",
+                        random: false,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "repulse" },
+                        onclick: { enable: true, mode: "push" },
+                        resize: true
+                    },
+                    modes: {
+                        repulse: { distance: 100, duration: 0.4 },
+                        push: { particles_nb: 4 }
+                    }
+                },
+                retina_detect: true
+            });
+        });
+        
+        // Function to open report document
+        function openReportDoc() {
+            window.open('/static/assets/Report.pdf', '_blank');
+        }
+        
+        // Function to open research paper
+        function openResearchPDF() {
+            window.open('/static/assets/Research_paper.pdf', '_blank');
+        }
+    </script>
 
 </body>
 
