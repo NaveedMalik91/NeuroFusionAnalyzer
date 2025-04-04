@@ -1,186 +1,242 @@
-// Model1-specific functionality
-const modelFunctions = {
-    // Show the loading spinner
-    setLoadingState: function(isLoading) {
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        if (loadingSpinner) {
-            loadingSpinner.style.display = isLoading ? 'flex' : 'none';
-        }
-    },
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize drop area functionality
+    initUploadForm();
     
-    // Show error message
-    showErrorMessage: function(message) {
-        // Create error alert
-        const errorAlert = document.createElement('div');
-        errorAlert.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorAlert.role = 'alert';
-        errorAlert.innerHTML = `
-            <strong>Error:</strong> ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
+    // Initialize particles.js
+    particlesJS("particles-js", {
+        particles: {
+            number: { value: 80, density: { enable: true, value_area: 800 } },
+            color: { value: "#ffffff" },
+            shape: { type: "circle" },
+            opacity: { value: 0.5, random: false },
+            size: { value: 3, random: true },
+            line_linked: {
+                enable: true,
+                distance: 150,
+                color: "#ffffff",
+                opacity: 0.4,
+                width: 1
+            },
+            move: {
+                enable: true,
+                speed: 2,
+                direction: "none",
+                random: false,
+                straight: false,
+                out_mode: "out",
+                bounce: false
+            }
+        },
+        interactivity: {
+            detect_on: "canvas",
+            events: {
+                onhover: { enable: true, mode: "repulse" },
+                onclick: { enable: true, mode: "push" },
+                resize: true
+            }
+        },
+        retina_detect: true
+    });
+});
+
+/**
+ * Initialize the upload form and related functionality
+ */
+function initUploadForm() {
+    const dropArea = document.getElementById('dropArea');
+    const fileInput = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+    const form = document.getElementById('uploadForm');
+    const resetBtn = document.querySelector('.reset-btn');
+    
+    // Handle drag and drop events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    // Handle enter and over events
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false);
+    });
+    
+    // Handle leave and drop events
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+    });
+    
+    function highlight() {
+        dropArea.classList.add('highlight');
+    }
+    
+    function unhighlight() {
+        dropArea.classList.remove('highlight');
+    }
+    
+    // Handle file drop
+    dropArea.addEventListener('drop', handleDrop, false);
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        fileInput.files = files;
+        updateFileName();
+    }
+    
+    // Handle file selection
+    fileInput.addEventListener('change', updateFileName);
+    
+    function updateFileName() {
+        if (fileInput.files.length) {
+            fileName.textContent = fileInput.files[0].name;
+        } else {
+            fileName.textContent = 'No file selected';
+        }
+    }
+    
+    // Handle form reset
+    resetBtn.addEventListener('click', function() {
+        form.reset();
+        fileName.textContent = 'No file selected';
+        document.querySelector('.result').style.display = 'none';
+    });
+    
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
         
-        // Add to document
-        const alertContainer = document.getElementById('alertContainer');
-        if (alertContainer) {
-            alertContainer.innerHTML = '';
-            alertContainer.appendChild(errorAlert);
-            
-            // Auto dismiss after 5 seconds
-            setTimeout(() => {
-                errorAlert.classList.remove('show');
-                setTimeout(() => {
-                    alertContainer.innerHTML = '';
-                }, 150);
-            }, 5000);
-        }
-    },
-    
-    // Validate CSV file
-    validateCSVFile: function(file) {
-        return new Promise((resolve, reject) => {
-            // Check file type
-            if (!file.name.endsWith('.csv')) {
-                reject('Please upload a CSV file');
-                return;
-            }
-            
-            // Check file size (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                reject('File is too large. Maximum size is 5MB');
-                return;
-            }
-            
-            // Read file header to check required columns
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const contents = e.target.result;
-                const lines = contents.split('\n');
-                
-                if (lines.length < 2) {
-                    reject('File is empty or has no data rows');
-                    return;
-                }
-                
-                // Check header row
-                const headers = lines[0].split(',').map(h => h.trim());
-                
-                // Required columns
-                const requiredColumns = [
-                    "Delta Power", "Theta Power", "Alpha Power", "Beta Power", "Gamma Power", 
-                    "Spectral Entropy", "Mean Coherence", "BOLD Mean", "BOLD Variance", 
-                    "ALFF Mean", "ALFF Variance"
-                ];
-                
-                const missingColumns = requiredColumns.filter(col => !headers.includes(col));
-                
-                if (missingColumns.length > 0) {
-                    reject(`Missing required columns: ${missingColumns.join(', ')}`);
-                    return;
-                }
-                
-                resolve();
-            };
-            
-            reader.onerror = function() {
-                reject('Error reading file');
-            };
-            
-            reader.readAsText(file);
-        });
-    },
-    
-    // Process response from server
-    processResponse: function(data) {
-        if (data.error) {
-            this.showErrorMessage(data.error);
+        if (!fileInput.files.length) {
+            alert('Please select a file first');
             return;
         }
         
-        // Display predictions if available
-        if (data.predictions) {
-            const predictionsList = document.getElementById('predictionsList');
-            if (predictionsList) {
-                predictionsList.innerHTML = '';
-                
-                // Convert numeric predictions to brain state names
-                const stateNames = ['Rest', 'Eyes Open', 'Eyes Closed'];
-                const predictions = data.predictions.map(p => stateNames[p]);
-                
-                // Create prediction items
-                predictions.forEach((prediction, index) => {
-                    const li = document.createElement('li');
-                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
-                    li.textContent = `Row ${index + 1}: ${prediction}`;
-                    
-                    // Add badge with color based on prediction
-                    const badge = document.createElement('span');
-                    badge.className = 'badge';
-                    
-                    // Different colors for different states
-                    if (prediction === 'Rest') {
-                        badge.className += ' bg-primary';
-                    } else if (prediction === 'Eyes Open') {
-                        badge.className += ' bg-success';
-                    } else {
-                        badge.className += ' bg-warning';
-                    }
-                    
-                    badge.textContent = prediction;
-                    li.appendChild(badge);
-                    
-                    predictionsList.appendChild(li);
+        // Create FormData object
+        const formData = new FormData(form);
+        
+        // Show loading state
+        const resultSection = document.querySelector('.result');
+        resultSection.style.display = 'flex';
+        const predictionText = document.getElementById('predictionText');
+        predictionText.textContent = 'Processing...';
+        const plotContainer = document.getElementById('plotContainer');
+        plotContainer.innerHTML = '<div class="loading">Analyzing data and generating visualizations...</div>';
+        
+        // Send data to server
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.error || 'Server error');
                 });
             }
+            return response.json();
+        })
+        .then(data => {
+            displayResults(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            predictionText.textContent = 'Error: ' + (error.message || 'An unexpected error occurred');
+            plotContainer.innerHTML = '';
+        });
+    });
+}
+
+/**
+ * Display the results from the server
+ */
+function displayResults(data) {
+    // Show result section
+    const resultSection = document.querySelector('.result');
+    resultSection.style.display = 'flex';
+    
+    // Show prediction
+    const predictionText = document.getElementById('predictionText');
+    
+    // Process predictions
+    if (data.predictions && data.predictions.length) {
+        // Map prediction indices to class names
+        const classNames = ['Rest', 'Eyes Open', 'Eyes Closed'];
+        const predictions = data.predictions.map(p => classNames[p]);
+        
+        // Count occurrences of each prediction
+        const counts = {};
+        predictions.forEach(p => { counts[p] = (counts[p] || 0) + 1; });
+        
+        // Find the most common prediction
+        const mostCommon = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+        const percentage = Math.round((counts[mostCommon] / predictions.length) * 100);
+        
+        predictionText.textContent = `Predicted Brain State: ${mostCommon} (${percentage}% confidence)`;
+    } else {
+        predictionText.textContent = 'No predictions available';
+    }
+    
+    // Display visualizations
+    const plotContainer = document.getElementById('plotContainer');
+    plotContainer.innerHTML = ''; // Clear previous plots
+    
+    if (data.visualizations) {
+        // Create the visualization elements
+        const visuals = data.visualizations;
+        
+        // Add feature distributions
+        if (visuals.feature_distributions) {
+            addPlot(plotContainer, 'EEG & fMRI Feature Distributions', visuals.feature_distributions);
         }
         
-        // Display visualizations if available
-        if (data.visualizations) {
-            // Feature distributions
-            if (data.visualizations.feature_distributions) {
-                const featureDistImg = document.getElementById('featureDistImg');
-                if (featureDistImg) {
-                    featureDistImg.src = `data:image/png;base64,${data.visualizations.feature_distributions}`;
-                    featureDistImg.style.display = 'block';
-                }
-            }
-            
-            // Confusion matrix
-            if (data.visualizations.confusion_matrix) {
-                const confusionMatrixImg = document.getElementById('confusionMatrixImg');
-                const confusionMatrixCard = document.getElementById('confusionMatrixCard');
-                
-                if (confusionMatrixImg && confusionMatrixCard) {
-                    confusionMatrixImg.src = `data:image/png;base64,${data.visualizations.confusion_matrix}`;
-                    confusionMatrixCard.style.display = 'block';
-                }
-            } else {
-                // Hide confusion matrix if no ground truth labels
-                const confusionMatrixCard = document.getElementById('confusionMatrixCard');
-                if (confusionMatrixCard) {
-                    confusionMatrixCard.style.display = 'none';
-                }
-            }
-            
-            // Feature correlations
-            if (data.visualizations.feature_correlations) {
-                const correlationsImg = document.getElementById('correlationsImg');
-                if (correlationsImg) {
-                    correlationsImg.src = `data:image/png;base64,${data.visualizations.feature_correlations}`;
-                    correlationsImg.style.display = 'block';
-                }
-            }
-            
-            // Prediction distributions
-            if (data.visualizations.prediction_distributions) {
-                const predDistImg = document.getElementById('predDistImg');
-                if (predDistImg) {
-                    predDistImg.src = `data:image/png;base64,${data.visualizations.prediction_distributions}`;
-                    predDistImg.style.display = 'block';
-                }
-            }
+        // Add confusion matrix if available
+        if (visuals.confusion_matrix) {
+            addPlot(plotContainer, 'Confusion Matrix', visuals.confusion_matrix);
+        }
+        
+        // Add correlations
+        if (visuals.feature_correlations) {
+            addPlot(plotContainer, 'EEG-FMRI Feature Correlations', visuals.feature_correlations);
+        }
+        
+        // Add prediction distributions
+        if (visuals.prediction_distributions) {
+            addPlot(plotContainer, 'Prediction Distributions', visuals.prediction_distributions);
         }
     }
-};
+    
+    // Scroll to results
+    resultSection.scrollIntoView({ behavior: 'smooth' });
+}
 
-// Make the functions available globally
-window.modelFunctions = modelFunctions;
+/**
+ * Add a plot to the container
+ */
+function addPlot(container, title, base64Data) {
+    const plotItem = document.createElement('div');
+    plotItem.className = 'plotItem';
+    
+    const plotTitle = document.createElement('h4');
+    plotTitle.textContent = title;
+    plotItem.appendChild(plotTitle);
+    
+    const img = document.createElement('img');
+    img.src = `data:image/png;base64,${base64Data}`;
+    img.alt = title;
+    
+    plotItem.appendChild(img);
+    container.appendChild(plotItem);
+}
+
+// Function to open report document
+function openReportDoc() {
+    window.open('/static/assets/Report.pdf', '_blank');
+}
+
+// Function to open research paper
+function openResearchPDF() {
+    window.open('/static/assets/Research_paper.pdf', '_blank');
+}

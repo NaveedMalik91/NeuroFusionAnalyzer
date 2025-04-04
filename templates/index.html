@@ -1,234 +1,148 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EEG-fMRI Fusion Analysis</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_model1.css') }}">
+    <title>Neural Analysis Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
-    <!-- Particle.js Background -->
-    <div id="particles-js"></div>
-    
-    <!-- Navigation -->
-    <nav id="navbar" class="navbar navbar-expand-lg">
+
+    <!-- Navbar -->
+    <nav id="navbar">
         <div class="container">
-            <a class="navbar-brand" href="/">
-                <img src="{{ url_for('static', filename='assets/logo1.png') }}" alt="Logo" height="40" class="d-inline-block align-text-top me-2">
-                EEG-fMRI Fusion
-            </a>
-            <button id="hamburger" class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul id="nav-menu" class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/about">About</a>
-                    </li>
+            <div class="nav-brand">
+                <a href="{{ url_for('home') }}">
+                    <img src="{{ url_for('static', filename='assets/logo1.png') }}" alt="logo" class="nav-logo"
+                        loading="lazy">
+                </a>
+            </div>
+
+            <!-- Hamburger Menu -->
+            <div class="hamburger">&#9776;</div>
+
+            <!-- Navigation Links -->
+            <div class="nav-menu">
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('home') }}" class="nav-link active">Home</a></li>
+                    <li><a href="{{ url_for('model1') }}" class="nav-link">Sleep Analysis</a></li>
+                    <li><a href="javascript:void(0);" class="nav-link" onclick="openReportDoc()">Report</a></li>
+                    <li><a href="{{ url_for('about') }}" class="nav-link">About</a></li>
                 </ul>
             </div>
         </div>
     </nav>
-    
+
     <!-- Hero Section -->
-    <section id="hero" class="py-5">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <h1 class="display-4 fw-bold">Brain State Analysis</h1>
-                    <p class="lead">Upload your EEG-fMRI data and predict brain states using our fusion model.</p>
-                    <p>Our advanced model combines EEG and fMRI features to predict brain states with high accuracy.</p>
-                    <a href="#upload" class="btn btn-primary btn-lg">Get Started</a>
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>Multimodal Neuro Imaging Techniques</h1>
+                <p>Advanced neural imaging platform that combines multiple imaging modalities including MRI, fMRI, DTI,
+                    and PET scans. Our AIML-powered solutions provide comprehensive brain structure and function
+                    analysis for research and clinical applications.</p>
+                <div class="buttons">
+                    <button class="btn black" onclick="openResearchPDF()">View Research</button>
                 </div>
-                <div class="col-lg-6 mt-4 mt-lg-0">
-                    <div class="video-container">
-                        <video autoplay loop muted>
-                            <source src="{{ url_for('static', filename='assets/brainnn.mp4') }}" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    </div>
-                </div>
+            </div>
+            <div class="hero-animation">
+                <!-- Updated: Using MP4 instead of Lottie -->
+                <video autoplay loop muted playsinline class="hero-video" >
+                    <source src="{{ url_for('static', filename='videos/brainnn.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
             </div>
         </div>
     </section>
-    
-    <!-- Features Section -->
-    <section id="features" class="py-5 bg-dark">
-        <div class="container">
-            <h2 class="text-center mb-5">Key Features</h2>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="bi bi-braces"></i>
-                        </div>
-                        <h3>Multimodal Integration</h3>
-                        <p>Combine EEG and fMRI data for enhanced brain state prediction accuracy.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="bi bi-graph-up"></i>
-                        </div>
-                        <h3>Advanced Visualization</h3>
-                        <p>Interactive visualizations to help interpret prediction results and feature relationships.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="bi bi-lightning"></i>
-                        </div>
-                        <h3>Real-Time Processing</h3>
-                        <p>Fast and efficient analysis of large datasets with immediate results.</p>
-                    </div>
-                </div>
+
+    <!-- Main Content Section -->
+    <div class="main-content-container">
+        <section class="main-content-section main-content-layout">
+            <div class="main-content-text">
+                <h2>Dataset-1: Simultaneous EEG and fMRI signals during sleep from humans.</h2>
+                <p>
+
+                    This dataset includes EEG-fMRI recordings from 33 healthy participants at Pennsylvania State
+                    University. Each session consists of anatomical imaging, resting-state fMRI (before and after a
+                    visual-motor adaptation task), and multiple sleep sessions.
+
+                    EEG was recorded using a 32-channel MR-compatible system at 5000 Hz, synchronized with fMRI
+                    triggers. Sleep stages (wakefulness, NREM1-3) were manually scored and stored in TSV files. fMRI
+                    data were collected on a 3T Siemens Prisma scanner using MPRAGE for anatomical images and EPI for
+                    BOLD signals.
+
+                    The dataset provides multimodal neural signals to study resting-state and sleep-related brain
+                    activity.</p>
+                <a href="https://openneuro.org/datasets/ds003768/versions/1.0.11" target="_blank"><button class="main-content-btn">Learn More</button></a>
             </div>
-        </div>
-    </section>
-    
-    <!-- Upload Section -->
-    <section id="upload" class="py-5">
-        <div class="container">
-            <h2 class="text-center mb-5">Upload Your Data</h2>
-            
-            <div id="alertContainer"></div>
-            
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="card">
-                        <div class="card-body">
-                            <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
-                                <div id="dropArea" class="drop-area mb-4">
-                                    <div class="drop-message">
-                                        <i class="bi bi-cloud-arrow-up"></i>
-                                        <p>Drag & drop your CSV file here</p>
-                                        <p class="text-muted small">or</p>
-                                        <button type="button" id="browseBtn" class="btn btn-outline-primary">Browse Files</button>
-                                        <input type="file" id="fileInput" name="file" accept=".csv" hidden>
-                                    </div>
-                                    <div class="file-info mt-3" id="fileInfo">
-                                        <p class="mb-0">Selected file: <span id="fileName"></span></p>
-                                    </div>
-                                </div>
-                                
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <button type="submit" id="runBtn" class="btn btn-primary w-100">
-                                            Run Analysis
-                                        </button>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <button type="button" id="resetBtn" class="btn btn-outline-secondary w-100">
-                                            Reset
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                            
-                            <!-- Loading Spinner -->
-                            <div id="loadingSpinner" class="text-center mt-4" style="display: none;">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                                <p class="mt-2">Processing data, please wait...</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="main-content-image">
+                <img src="{{ url_for('static', filename='assets/image2.jpg') }}" alt="Digital Transformation">
             </div>
-        </div>
-    </section>
-    
-    <!-- Results Section -->
-    <section id="resultSection" class="py-5 bg-dark" style="display: none;">
-        <div class="container">
-            <h2 class="text-center mb-5">Analysis Results</h2>
-            
-            <div class="row g-4">
-                <!-- Predictions Card -->
-                <div class="col-lg-6">
-                    <div class="card h-100">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="card-title mb-0">Brain State Predictions</h5>
-                        </div>
-                        <div class="card-body">
-                            <ul id="predictionsList" class="list-group prediction-list"></ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Feature Distributions Card -->
-                <div class="col-lg-6">
-                    <div class="card h-100">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="card-title mb-0">EEG & fMRI Feature Distributions</h5>
-                        </div>
-                        <div class="card-body text-center">
-                            <img id="featureDistImg" src="" class="img-fluid visualization-img" alt="Feature Distributions" style="display: none;">
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Confusion Matrix Card (only shown if ground truth data is available) -->
-                <div id="confusionMatrixCard" class="col-lg-6" style="display: none;">
-                    <div class="card h-100">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="card-title mb-0">Confusion Matrix</h5>
-                        </div>
-                        <div class="card-body text-center">
-                            <img id="confusionMatrixImg" src="" class="img-fluid visualization-img" alt="Confusion Matrix">
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Feature Correlations Card -->
-                <div class="col-lg-6">
-                    <div class="card h-100">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="card-title mb-0">EEG-FMRI Feature Correlations</h5>
-                        </div>
-                        <div class="card-body text-center">
-                            <img id="correlationsImg" src="" class="img-fluid visualization-img" alt="Feature Correlations" style="display: none;">
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Prediction Distributions Card -->
-                <div class="col-lg-6">
-                    <div class="card h-100">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="card-title mb-0">Prediction Distributions</h5>
-                        </div>
-                        <div class="card-body text-center">
-                            <img id="predDistImg" src="" class="img-fluid visualization-img" alt="Prediction Distributions" style="display: none;">
-                        </div>
-                    </div>
-                </div>
+        </section>
+
+        
+
+        <section class="main-content-section main-content-layout-reverse">
+            <div class="main-content-text">
+                <h2>How to Predict</h2>
+                <ol>
+                    <li>
+                        <h3>Step 1: Upload Your Dataset</h3>
+                        <p>User selects and uploads a CSV file containing EEG (Alpha, Beta, Gamma, Delta) and fMRI (Mean BOLD, Variance BOLD) features.</p>
+                    </li>
+                    <li>
+                        <h3>Step 2: Data validation</h3>
+                        <p>Backend (Flask) validates the input file to match the trained model's format.</p>
+                    </li>
+                    <li>
+                        <h3>Step 3: Read CSV file</h3>
+                        <p>Flask reads the CSV, extracts required columns (Alpha, Beta, Gamma, Delta, Mean BOLD, Variance BOLD). Check for missing/invalid values and scale values using saved scaler.pkl file</p>
+                    </li>
+                    <li>
+                        <h3>Step 4: Model Inference</h3>
+                        <p>The model is loaded [saved as .h5 file] and preprocessed features are sent to the deployed model for data analysis and prediction.</p>
+                    </li>
+                    <li>
+                        <h3>Step 5: Task Decoding</h3>
+                        <p>Convert the model's label-encoded prediction (0/1) into a human-readable task label using the task encoding file.</p>
+                    </li>
+                    <li>
+                        <h3>Step 6: Return Prediction</h3>
+                        <p>Send the predicted task label and any relevant visualizations back to the frontend.</p>
+                    </li>
+                    <li>
+                        <h3>Step 7: Display Prediction and Visualisation</h3>
+                        <p>Display the predicted task label and visualizations (EEG/fMRI plots) on the UI.</p>
+                    </li>
+                </ol>
+                <a href="{{ url_for('model1') }}"><button class="main-content-btn">Get Started</button></a>
             </div>
-        </div>
-    </section>
-    
+            <div class="main-content-image">
+                <img src="{{ url_for('static', filename='assets/image.png') }}" alt="How to Predict">
+            </div>
+        </section>
+    </div>
+
+
     <!-- Footer -->
-    <footer class="py-4 text-center">
-        <div class="container">
-            <p>&copy; 2025 EEG-fMRI Fusion Analysis. All rights reserved.</p>
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="mailto:C2K221152@ms.pict.edu" target="_blank"><i class="fas fa-envelope"></i></a>
+            <a href="https://github.com/NaveedMalik91" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://www.linkedin.com/in/naveed-malik-944825257/" target="_blank"><i
+                    class="fab fa-linkedin"></i></a>
         </div>
+        <p>&copy; 2025 Multimodal Neural-Analysis.</p>
     </footer>
-    
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Particles.js -->
+
+    <!-- Scripts -->
     <script src="{{ url_for('static', filename='js/particles.min.js') }}"></script>
-    <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/script_model1.js') }}"></script>
+
 </body>
+
 </html>
