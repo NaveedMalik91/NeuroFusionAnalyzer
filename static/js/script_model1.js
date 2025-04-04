@@ -162,8 +162,8 @@ function displayResults(data) {
     
     // Process predictions
     if (data.predictions && data.predictions.length) {
-        // Map prediction indices to class names
-        const classNames = ['Rest', 'Eyes Open', 'Eyes Closed'];
+        // Map prediction indices to class names (0->Rest, 1->Sleep)
+        const classNames = ['Rest', 'Sleep'];
         const predictions = data.predictions.map(p => classNames[p]);
         
         // Count occurrences of each prediction

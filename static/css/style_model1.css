@@ -465,3 +465,17 @@ body {
 .social-icons a:hover {
     color: #007bff;
 }
+/* Sample link styling */
+.sample-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: #42b883;
+    text-decoration: underline;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.sample-link:hover {
+    color: #2c9f68;
+    text-decoration: none;
+}

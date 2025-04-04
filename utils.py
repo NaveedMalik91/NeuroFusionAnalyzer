@@ -13,8 +13,8 @@ EXPECTED_COLUMNS = [
     "ALFF Mean", "ALFF Variance"
 ]
 
-# Define brain state classes
-BRAIN_STATES = ['Rest', 'Eyes Open', 'Eyes Closed']
+# Define brain state classes (as specified by user)
+BRAIN_STATES = ['Rest', 'Sleep']
 
 def validate_data(data):
     """
