@@ -188,16 +188,14 @@ def upload_file():
         # Read the CSV file
         data = pd.read_csv(file)
         
-        # Check if data has the required columns
+        # Check if data has the required columns in the correct order
         validation_result = validate_data(data)
         if validation_result is not True:
             return jsonify({'error': validation_result}), 400
         
-        # Check if the State column exists (for labeled data)
-        has_labels = 'State' in data.columns
-        
         # Process the data and generate predictions
-        processed_data = process_data(data, has_labels)
+        # We now explicitly pass has_labels=False since we expect no labels in input
+        processed_data = process_data(data, has_labels=False)
         
         return jsonify(processed_data)
     
@@ -205,7 +203,7 @@ def upload_file():
         print(f"Error processing file: {e}")
         return jsonify({'error': f'Error processing file: {str(e)}'}), 500
 
-def process_data(data, has_labels=True):
+def process_data(data, has_labels=False):
     """Process the data, generate predictions and visualizations"""
     # Extract features for the model
     features = preprocess_data(data)
@@ -214,26 +212,21 @@ def process_data(data, has_labels=True):
     predictions, predictions_prob = predict_with_model(features)
     
     # Generate visualizations
-    visualizations = generate_visualizations(data, predictions, predictions_prob, has_labels)
+    visualizations = generate_visualizations(data, predictions, predictions_prob, has_labels=False)
     
-    # Prepare response
+    # Map prediction indices to class names for display
+    class_names = BRAIN_STATES
+    predictions_str = [class_names[p] for p in predictions]
+    
+    # Prepare response with predictions as class names
     response = {
-        'predictions': predictions.tolist(),
+        'predictions': predictions_str,
         'visualizations': visualizations
     }
     
-    # Include true labels in response if we have them
-    if has_labels:
-        # Map prediction indices to class names
-        class_names = BRAIN_STATES
-        predictions_str = [class_names[p] for p in predictions]
-        
-        # Include true labels in response
-        response['true_labels'] = data['State'].tolist()
-    
     return response
 
-def generate_visualizations(data, predictions, predictions_prob, has_labels=True):
+def generate_visualizations(data, predictions, predictions_prob, has_labels=False):
     """Generate visualization plots and convert to base64 for HTML display"""
     visualizations = {}
     
@@ -241,21 +234,10 @@ def generate_visualizations(data, predictions, predictions_prob, has_labels=True
     fig_distributions = plot_feature_distributions(data)
     visualizations['feature_distributions'] = fig_to_base64(fig_distributions)
     
-    # Generate confusion matrix if we have ground truth labels
-    if has_labels:
-        # Get true labels
-        y_true = data['State'].values
-        
-        # Map prediction indices to class names
-        class_names = BRAIN_STATES  # Using ['Rest', 'Sleep']
-        predictions_str = [class_names[p] for p in predictions]
-        
-        # Generate confusion matrix
-        fig_confusion = plot_confusion_matrix(y_true, predictions_str)
-        visualizations['confusion_matrix'] = fig_to_base64(fig_confusion)
+    # We no longer include confusion matrix since we don't have ground truth labels
     
-    # Generate feature correlation plot
-    fig_correlations = plot_feature_correlations(data.drop(columns=['State'] if has_labels else []))
+    # Generate feature correlation plot (no need to drop State column as it doesn't exist)
+    fig_correlations = plot_feature_correlations(data)
     visualizations['feature_correlations'] = fig_to_base64(fig_correlations)
     
     # Generate prediction distribution plot
@@ -270,7 +252,7 @@ def plot_feature_distributions(data):
     fig, axes = plt.subplots(2, 1, figsize=(10, 12))
     
     # EEG features (first 7 columns)
-    eeg_features = [col for col in data.columns if col not in ['State', 'BOLD Mean', 'BOLD Variance', 'ALFF Mean', 'ALFF Variance']]
+    eeg_features = [col for col in data.columns if col not in ['BOLD Mean', 'BOLD Variance', 'ALFF Mean', 'ALFF Variance']]
     eeg_data = data[eeg_features]
     
     # fMRI features (last 4 columns)

@@ -479,3 +479,15 @@ body {
     color: #2c9f68;
     text-decoration: none;
 }
+
+/* Data format hint styling */
+.data-format-hint {
+    font-size: 0.9rem;
+    margin-top: 5px;
+    color: #f0f0f0;
+    background-color: rgba(66, 184, 131, 0.1);
+    border: 1px solid rgba(66, 184, 131, 0.3);
+    border-radius: 4px;
+    padding: 8px 12px;
+    line-height: 1.5;
+}

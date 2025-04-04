@@ -18,7 +18,7 @@ BRAIN_STATES = ['Rest', 'Sleep']
 
 def validate_data(data):
     """
-    Validate that the uploaded data contains all required columns
+    Validate that the uploaded data contains exactly the required columns in the correct order
     
     Parameters:
     -----------
@@ -34,24 +34,19 @@ def validate_data(data):
     if data.empty:
         return "The uploaded file contains no data"
     
-    # Check for required columns
-    missing_columns = [col for col in EXPECTED_COLUMNS if col not in data.columns]
-    if missing_columns:
-        return f"Missing required columns: {', '.join(missing_columns)}"
+    # Check that columns match exactly the expected columns (including order)
+    if list(data.columns) != EXPECTED_COLUMNS:
+        return "Invalid data format. Data must contain exactly these columns in this order: " + ", ".join(EXPECTED_COLUMNS)
     
     # Check if numeric columns contain non-numeric data
     for col in EXPECTED_COLUMNS:
         if not pd.api.types.is_numeric_dtype(data[col]):
             return f"Column '{col}' contains non-numeric data"
     
-    # Check if the optional 'State' column contains valid values
-    if 'State' in data.columns:
-        valid_states = set(BRAIN_STATES)
-        unique_states = set(data['State'].unique())
-        invalid_states = unique_states - valid_states
-        
-        if invalid_states:
-            return f"Invalid state values found: {', '.join(invalid_states)}. Valid states are: {', '.join(valid_states)}"
+    # Ensure no extra columns are present
+    if len(data.columns) != len(EXPECTED_COLUMNS):
+        extra_columns = [col for col in data.columns if col not in EXPECTED_COLUMNS]
+        return f"Extra columns not allowed: {', '.join(extra_columns)}"
     
     return True
 
