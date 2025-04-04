@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About | EEG-fMRI Fusion Analysis</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_model1.css') }}">
+</head>
+<body>
+    <!-- Particle.js Background -->
+    <div id="particles-js"></div>
+    
+    <!-- Navigation -->
+    <nav id="navbar" class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="{{ url_for('static', filename='assets/logo1.png') }}" alt="Logo" height="40" class="d-inline-block align-text-top me-2">
+                EEG-fMRI Fusion
+            </a>
+            <button id="hamburger" class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul id="nav-menu" class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/about">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- About Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <h1 class="card-title text-center mb-4">About This Project</h1>
+                            
+                            <div class="mb-5">
+                                <h2>Project Overview</h2>
+                                <p>The EEG-fMRI Fusion Analysis project is an advanced web application designed to analyze multimodal neuroimaging data for brain state prediction. By leveraging both electroencephalography (EEG) and functional magnetic resonance imaging (fMRI) data, our application provides more comprehensive insights into brain activity patterns.</p>
+                                <p>Our fusion model has been trained on extensive datasets to recognize three distinct brain states:</p>
+                                <ul>
+                                    <li><strong>Rest:</strong> Default mode network activation, minimal sensory processing</li>
+                                    <li><strong>Eyes Open:</strong> Alert wakefulness, visual processing active</li>
+                                    <li><strong>Eyes Closed:</strong> Increased alpha rhythm, reduced visual cortex activity</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mb-5">
+                                <h2>How It Works</h2>
+                                <p>The application processes CSV files containing specific EEG and fMRI features:</p>
+                                
+                                <h5>EEG Features:</h5>
+                                <ul>
+                                    <li>Delta Power (0.5-4 Hz)</li>
+                                    <li>Theta Power (4-8 Hz)</li>
+                                    <li>Alpha Power (8-13 Hz)</li>
+                                    <li>Beta Power (13-30 Hz)</li>
+                                    <li>Gamma Power (30-100 Hz)</li>
+                                    <li>Spectral Entropy</li>
+                                    <li>Mean Coherence</li>
+                                </ul>
+                                
+                                <h5>fMRI Features:</h5>
+                                <ul>
+                                    <li>BOLD Mean</li>
+                                    <li>BOLD Variance</li>
+                                    <li>ALFF Mean (Amplitude of Low-Frequency Fluctuations)</li>
+                                    <li>ALFF Variance</li>
+                                </ul>
+                                
+                                <p>These features are processed through our fusion model, which outputs predicted brain states for each data point in your dataset.</p>
+                            </div>
+                            
+                            <div class="mb-5">
+                                <h2>Data Visualization</h2>
+                                <p>Our application provides several visualizations to help you interpret the results:</p>
+                                
+                                <ul>
+                                    <li><strong>Feature Distributions:</strong> Displays the distribution of EEG and fMRI features in your dataset</li>
+                                    <li><strong>Confusion Matrix:</strong> Shows the model's prediction accuracy compared to ground truth labels (if provided)</li>
+                                    <li><strong>Feature Correlations:</strong> Illustrates relationships between different EEG and fMRI features</li>
+                                    <li><strong>Prediction Distributions:</strong> Visualizes the distribution of prediction probabilities for each class</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mb-5">
+                                <h2>Data Requirements</h2>
+                                <p>To use this application, prepare your data in CSV format with the following columns:</p>
+                                <pre class="bg-dark text-light p-3">
+Delta Power,Theta Power,Alpha Power,Beta Power,Gamma Power,Spectral Entropy,Mean Coherence,BOLD Mean,BOLD Variance,ALFF Mean,ALFF Variance[,State]
+</pre>
+                                <p>The <code>State</code> column is optional and should contain one of the following values if present: "Rest", "Eyes Open", or "Eyes Closed". Including this column allows the application to evaluate prediction accuracy.</p>
+                            </div>
+                            
+                            <div>
+                                <h2>Technical Details</h2>
+                                <p>The application is built using the following technologies:</p>
+                                <ul>
+                                    <li>Backend: Flask (Python)</li>
+                                    <li>Data Processing: NumPy, Pandas</li>
+                                    <li>Visualization: Matplotlib, Seaborn</li>
+                                    <li>Frontend: HTML5, CSS3, JavaScript, Bootstrap</li>
+                                    <li>Animation: Particles.js</li>
+                                </ul>
+                                <p>The model architecture integrates EEG and fMRI features using a neural network fusion approach to leverage the complementary information from both modalities.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="py-4 text-center">
+        <div class="container">
+            <p>&copy; 2025 EEG-fMRI Fusion Analysis. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Particles.js -->
+    <script src="{{ url_for('static', filename='js/particles.min.js') }}"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
