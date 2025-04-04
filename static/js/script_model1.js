@@ -39,6 +39,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Global variable to store prediction data
+let allPredictionEntries = [];
+let currentPage = 0;
+const entriesPerPage = 20;
+
 /**
  * Initialize the upload form and related functionality
  */
@@ -103,6 +108,8 @@ function initUploadForm() {
         form.reset();
         fileName.textContent = 'No file selected';
         document.querySelector('.result').style.display = 'none';
+        allPredictionEntries = [];
+        currentPage = 0;
     });
     
     // Handle form submission
@@ -130,6 +137,10 @@ function initUploadForm() {
         
         const plotContainer = document.getElementById('plotContainer');
         plotContainer.innerHTML = '<div class="loading">Analyzing data and generating visualizations...</div>';
+        
+        // Reset pagination
+        allPredictionEntries = [];
+        currentPage = 0;
         
         // Send data to server
         fetch('/upload', {
@@ -194,68 +205,13 @@ function displayResults(data) {
         modelMetrics.appendChild(confidenceCard);
     }
     
-    // 3. Display detailed predictions
-    const detailedPredictions = document.getElementById('detailed-predictions');
-    detailedPredictions.innerHTML = '';
-    
+    // 3. Store all prediction entries for pagination
     if (data.predictions) {
-        // Add color legend for the progress bars
-        addProgressBarLegend(detailedPredictions);
+        allPredictionEntries = Object.entries(data.predictions);
+        currentPage = 0;
         
-        const entries = Object.entries(data.predictions);
-        // Only show first 20 entries if there are too many
-        const displayEntries = entries.length > 20 ? entries.slice(0, 20) : entries;
-        
-        displayEntries.forEach(([entry, probabilities]) => {
-            const entryElement = document.createElement('div');
-            entryElement.className = 'prediction-entry';
-            
-            const label = document.createElement('div');
-            label.className = 'prediction-entry-label';
-            label.textContent = entry;
-            
-            const probsContainer = document.createElement('div');
-            probsContainer.className = 'prediction-probability';
-            
-            const restProb = (probabilities.Rest * 100).toFixed(2);
-            const sleepProb = (probabilities.Sleep * 100).toFixed(2);
-            
-            probsContainer.innerHTML = `
-                <div>Rest: ${restProb}%</div>
-                <div>Sleep: ${sleepProb}%</div>
-            `;
-            
-            // Create probability bar visualization
-            const barContainer = document.createElement('div');
-            barContainer.className = 'probability-bar';
-            
-            const restBar = document.createElement('div');
-            restBar.className = 'rest-probability';
-            restBar.style.width = `${restProb}%`;
-            
-            const sleepBar = document.createElement('div');
-            sleepBar.className = 'sleep-probability';
-            sleepBar.style.width = `${sleepProb}%`;
-            
-            barContainer.appendChild(restBar);
-            barContainer.appendChild(sleepBar);
-            
-            entryElement.appendChild(label);
-            entryElement.appendChild(probsContainer);
-            entryElement.appendChild(barContainer);
-            
-            detailedPredictions.appendChild(entryElement);
-        });
-        
-        // Add a note if showing truncated results
-        if (entries.length > 20) {
-            const note = document.createElement('div');
-            note.textContent = `Showing first 20 of ${entries.length} entries`;
-            note.style.marginTop = '10px';
-            note.style.fontSize = '0.9rem';
-            note.style.opacity = '0.7';
-            detailedPredictions.appendChild(note);
-        }
+        // Display the first page of predictions
+        displayPredictionPage();
     }
     
     // Display visualizations
@@ -289,6 +245,153 @@ function displayResults(data) {
     
     // Scroll to results
     resultSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+/**
+ * Display a page of prediction entries
+ */
+function displayPredictionPage() {
+    const detailedPredictions = document.getElementById('detailed-predictions');
+    detailedPredictions.innerHTML = '';
+    
+    if (allPredictionEntries.length === 0) {
+        detailedPredictions.innerHTML = '<div>No predictions available</div>';
+        return;
+    }
+    
+    // Add color legend for the progress bars
+    addProgressBarLegend(detailedPredictions);
+    
+    // Calculate start and end indices for the current page
+    const startIndex = currentPage * entriesPerPage;
+    const endIndex = Math.min(startIndex + entriesPerPage, allPredictionEntries.length);
+    
+    // Get entries for the current page
+    const pageEntries = allPredictionEntries.slice(startIndex, endIndex);
+    
+    // Display the entries
+    pageEntries.forEach(([entry, probabilities]) => {
+        const entryElement = document.createElement('div');
+        entryElement.className = 'prediction-entry';
+        
+        const label = document.createElement('div');
+        label.className = 'prediction-entry-label';
+        label.textContent = entry;
+        
+        const probsContainer = document.createElement('div');
+        probsContainer.className = 'prediction-probability';
+        
+        const restProb = (probabilities.Rest * 100).toFixed(2);
+        const sleepProb = (probabilities.Sleep * 100).toFixed(2);
+        
+        probsContainer.innerHTML = `
+            <div>Rest: ${restProb}%</div>
+            <div>Sleep: ${sleepProb}%</div>
+        `;
+        
+        // Create probability bar visualization
+        const barContainer = document.createElement('div');
+        barContainer.className = 'probability-bar';
+        
+        const restBar = document.createElement('div');
+        restBar.className = 'rest-probability';
+        restBar.style.width = `${restProb}%`;
+        
+        const sleepBar = document.createElement('div');
+        sleepBar.className = 'sleep-probability';
+        sleepBar.style.width = `${sleepProb}%`;
+        
+        barContainer.appendChild(restBar);
+        barContainer.appendChild(sleepBar);
+        
+        entryElement.appendChild(label);
+        entryElement.appendChild(probsContainer);
+        entryElement.appendChild(barContainer);
+        
+        detailedPredictions.appendChild(entryElement);
+    });
+    
+    // Add pagination controls
+    addPaginationControls(detailedPredictions);
+}
+
+/**
+ * Add pagination controls to navigate between pages of predictions
+ */
+function addPaginationControls(container) {
+    const totalPages = Math.ceil(allPredictionEntries.length / entriesPerPage);
+    
+    if (totalPages <= 1) {
+        return; // No pagination needed if only one page
+    }
+    
+    const paginationContainer = document.createElement('div');
+    paginationContainer.className = 'pagination-controls';
+    paginationContainer.style.display = 'flex';
+    paginationContainer.style.justifyContent = 'center';
+    paginationContainer.style.gap = '15px';
+    paginationContainer.style.marginTop = '20px';
+    
+    // Previous button
+    const prevButton = document.createElement('button');
+    prevButton.textContent = '← Previous';
+    prevButton.style.padding = '8px 15px';
+    prevButton.style.borderRadius = '5px';
+    prevButton.style.border = 'none';
+    prevButton.style.background = 'rgba(138, 43, 226, 0.7)';
+    prevButton.style.color = 'white';
+    prevButton.style.cursor = 'pointer';
+    prevButton.disabled = currentPage === 0;
+    if (prevButton.disabled) {
+        prevButton.style.opacity = '0.5';
+        prevButton.style.cursor = 'not-allowed';
+    }
+    
+    prevButton.addEventListener('click', function() {
+        if (currentPage > 0) {
+            currentPage--;
+            displayPredictionPage();
+            container.scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+    
+    // Page info
+    const pageInfo = document.createElement('div');
+    pageInfo.textContent = `Page ${currentPage + 1} of ${totalPages}`;
+    pageInfo.style.display = 'flex';
+    pageInfo.style.alignItems = 'center';
+    pageInfo.style.fontWeight = '500';
+    
+    // Next button
+    const nextButton = document.createElement('button');
+    nextButton.textContent = 'Next →';
+    nextButton.style.padding = '8px 15px';
+    nextButton.style.borderRadius = '5px';
+    nextButton.style.border = 'none';
+    nextButton.style.background = 'rgba(138, 43, 226, 0.7)';
+    nextButton.style.color = 'white';
+    nextButton.style.cursor = 'pointer';
+    nextButton.disabled = currentPage >= totalPages - 1;
+    if (nextButton.disabled) {
+        nextButton.style.opacity = '0.5';
+        nextButton.style.cursor = 'not-allowed';
+    }
+    
+    nextButton.addEventListener('click', function() {
+        if (currentPage < totalPages - 1) {
+            currentPage++;
+            displayPredictionPage();
+            container.scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+    
+    // Add all elements to the pagination container
+    paginationContainer.appendChild(prevButton);
+    paginationContainer.appendChild(pageInfo);
+    paginationContainer.appendChild(nextButton);
+    
+    // Add pagination container to the main container
+    container.appendChild(paginationContainer);
 }
 
 /**
