@@ -214,13 +214,40 @@ def process_data(data, has_labels=False):
     # Generate visualizations
     visualizations = generate_visualizations(data, predictions, predictions_prob, has_labels=False)
     
-    # Map prediction indices to class names for display
-    class_names = BRAIN_STATES
-    predictions_str = [class_names[p] for p in predictions]
+    # Format predictions as requested by user
+    # 1. Probability of Sleep vs. Rest for each entry
+    entry_predictions = {}
+    for i in range(len(predictions)):
+        entry_predictions[f"entry_{i+1}"] = {
+            "Rest": float(f"{predictions_prob[i][0]:.4f}"),
+            "Sleep": float(f"{predictions_prob[i][1]:.4f}")
+        }
     
-    # Prepare response with predictions as class names
+    # 2. Overall percentage of Sleep and Rest across all entries
+    total_sleep_count = np.sum(predictions == 1)
+    total_rest_count = np.sum(predictions == 0)
+    total_entries = len(predictions)
+    
+    overall_percentages = {
+        "Sleep": round((total_sleep_count / total_entries) * 100, 2),
+        "Rest": round((total_rest_count / total_entries) * 100, 2)
+    }
+    
+    # 3. Model accuracy/confidence (estimated from prediction probabilities)
+    # Calculate average confidence based on the probability of the predicted class
+    confidences = []
+    for i, pred in enumerate(predictions):
+        confidences.append(predictions_prob[i][pred])
+    
+    model_confidence = {
+        "Model_Confidence": round(np.mean(confidences) * 100, 2)
+    }
+    
+    # Prepare response with the new format
     response = {
-        'predictions': predictions_str,
+        'predictions': entry_predictions,
+        'overall_percentages': overall_percentages,
+        'model_metrics': model_confidence,
         'visualizations': visualizations
     }
     

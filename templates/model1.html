@@ -60,8 +60,24 @@
 
     <div class="result" style="display: none;">
         <div id="prediction">
-            <h3>Prediction:</h3>
-            <p id="predictionText">Loading...</p>
+            <h3>Prediction Results:</h3>
+            <div class="prediction-container">
+                <div class="prediction-section">
+                    <h4>Overall Classification</h4>
+                    <div id="overall-percentages"></div>
+                </div>
+                <div class="prediction-section">
+                    <h4>Model Confidence</h4>
+                    <div id="model-metrics"></div>
+                </div>
+                <div class="prediction-section">
+                    <h4>Individual Predictions</h4>
+                    <div id="prediction-details">
+                        <button id="togglePredictions">Show/Hide Detailed Predictions</button>
+                        <div id="detailed-predictions" style="display: none; max-height: 300px; overflow-y: auto; margin-top: 10px;"></div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="visualisation">

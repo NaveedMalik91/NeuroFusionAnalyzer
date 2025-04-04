@@ -120,8 +120,14 @@ function initUploadForm() {
         // Show loading state
         const resultSection = document.querySelector('.result');
         resultSection.style.display = 'flex';
-        const predictionText = document.getElementById('predictionText');
-        predictionText.textContent = 'Processing...';
+        const overallPercentages = document.getElementById('overall-percentages');
+        const modelMetrics = document.getElementById('model-metrics');
+        const detailedPredictions = document.getElementById('detailed-predictions');
+        
+        overallPercentages.innerHTML = '<div>Loading...</div>';
+        modelMetrics.innerHTML = '<div>Loading...</div>';
+        detailedPredictions.innerHTML = '';
+        
         const plotContainer = document.getElementById('plotContainer');
         plotContainer.innerHTML = '<div class="loading">Analyzing data and generating visualizations...</div>';
         
@@ -143,9 +149,20 @@ function initUploadForm() {
         })
         .catch(error => {
             console.error('Error:', error);
-            predictionText.textContent = 'Error: ' + (error.message || 'An unexpected error occurred');
+            overallPercentages.innerHTML = '<div>Error processing data</div>';
+            modelMetrics.innerHTML = '<div>Error processing data</div>';
             plotContainer.innerHTML = '';
         });
+    });
+    
+    // Toggle detailed predictions visibility
+    document.getElementById('togglePredictions').addEventListener('click', function() {
+        const detailedPredictions = document.getElementById('detailed-predictions');
+        if (detailedPredictions.style.display === 'none') {
+            detailedPredictions.style.display = 'block';
+        } else {
+            detailedPredictions.style.display = 'none';
+        }
     });
 }
 
@@ -157,26 +174,85 @@ function displayResults(data) {
     const resultSection = document.querySelector('.result');
     resultSection.style.display = 'flex';
     
-    // Show prediction
-    const predictionText = document.getElementById('predictionText');
+    // 1. Display overall percentages
+    const overallPercentages = document.getElementById('overall-percentages');
+    overallPercentages.innerHTML = '';
     
-    // Process predictions
-    if (data.predictions && data.predictions.length) {
-        // Map prediction indices to class names (0->Rest, 1->Sleep)
-        const classNames = ['Rest', 'Sleep'];
-        const predictions = data.predictions.map(p => classNames[p]);
+    if (data.overall_percentages) {
+        const sleepCard = createMetricCard(data.overall_percentages.Sleep + '%', 'Sleep');
+        const restCard = createMetricCard(data.overall_percentages.Rest + '%', 'Rest');
+        overallPercentages.appendChild(sleepCard);
+        overallPercentages.appendChild(restCard);
+    }
+    
+    // 2. Display model metrics
+    const modelMetrics = document.getElementById('model-metrics');
+    modelMetrics.innerHTML = '';
+    
+    if (data.model_metrics) {
+        const confidenceCard = createMetricCard(data.model_metrics.Model_Confidence + '%', 'Confidence');
+        modelMetrics.appendChild(confidenceCard);
+    }
+    
+    // 3. Display detailed predictions
+    const detailedPredictions = document.getElementById('detailed-predictions');
+    detailedPredictions.innerHTML = '';
+    
+    if (data.predictions) {
+        const entries = Object.entries(data.predictions);
+        // Only show first 20 entries if there are too many
+        const displayEntries = entries.length > 20 ? entries.slice(0, 20) : entries;
         
-        // Count occurrences of each prediction
-        const counts = {};
-        predictions.forEach(p => { counts[p] = (counts[p] || 0) + 1; });
+        displayEntries.forEach(([entry, probabilities]) => {
+            const entryElement = document.createElement('div');
+            entryElement.className = 'prediction-entry';
+            
+            const label = document.createElement('div');
+            label.className = 'prediction-entry-label';
+            label.textContent = entry;
+            
+            const probsContainer = document.createElement('div');
+            probsContainer.className = 'prediction-probability';
+            
+            const restProb = (probabilities.Rest * 100).toFixed(2);
+            const sleepProb = (probabilities.Sleep * 100).toFixed(2);
+            
+            probsContainer.innerHTML = `
+                <div>Rest: ${restProb}%</div>
+                <div>Sleep: ${sleepProb}%</div>
+            `;
+            
+            // Create probability bar visualization
+            const barContainer = document.createElement('div');
+            barContainer.className = 'probability-bar';
+            
+            const restBar = document.createElement('div');
+            restBar.className = 'rest-probability';
+            restBar.style.width = `${restProb}%`;
+            
+            const sleepBar = document.createElement('div');
+            sleepBar.className = 'sleep-probability';
+            sleepBar.style.width = `${sleepProb}%`;
+            
+            barContainer.appendChild(restBar);
+            barContainer.appendChild(sleepBar);
+            
+            entryElement.appendChild(label);
+            entryElement.appendChild(probsContainer);
+            entryElement.appendChild(barContainer);
+            
+            detailedPredictions.appendChild(entryElement);
+        });
         
-        // Find the most common prediction
-        const mostCommon = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
-        const percentage = Math.round((counts[mostCommon] / predictions.length) * 100);
-        
-        predictionText.textContent = `Predicted Brain State: ${mostCommon} (${percentage}% confidence)`;
-    } else {
-        predictionText.textContent = 'No predictions available';
+        // Add a note if showing truncated results
+        if (entries.length > 20) {
+            const note = document.createElement('div');
+            note.textContent = `Showing first 20 of ${entries.length} entries`;
+            note.style.marginTop = '10px';
+            note.style.fontSize = '0.9rem';
+            note.style.opacity = '0.7';
+            detailedPredictions.appendChild(note);
+        }
     }
     
     // Display visualizations
@@ -210,6 +286,27 @@ function displayResults(data) {
     
     // Scroll to results
     resultSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+/**
+ * Create a metric card for displaying statistics
+ */
+function createMetricCard(value, label) {
+    const card = document.createElement('div');
+    card.className = 'metric-card';
+    
+    const valueElement = document.createElement('div');
+    valueElement.className = 'metric-value';
+    valueElement.textContent = value;
+    
+    const labelElement = document.createElement('div');
+    labelElement.className = 'metric-label';
+    labelElement.textContent = label;
+    
+    card.appendChild(valueElement);
+    card.appendChild(labelElement);
+    
+    return card;
 }
 
 /**

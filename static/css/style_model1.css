@@ -491,3 +491,131 @@ body {
     padding: 8px 12px;
     line-height: 1.5;
 }
+
+/* New Prediction Display Styles */
+.prediction-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.prediction-section {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.prediction-section h4 {
+    margin-bottom: 10px;
+    color: #8a2be2;
+    font-size: 1.1rem;
+}
+
+#overall-percentages, #model-metrics {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 10px;
+    flex-wrap: wrap;
+}
+
+.metric-card {
+    background: rgba(138, 43, 226, 0.1);
+    border-radius: 8px;
+    padding: 15px;
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.metric-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    background: linear-gradient(135deg, rgba(149, 54, 238, 0.9), rgba(121, 36, 182, 0.9));
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.metric-label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+#togglePredictions {
+    background: rgba(138, 43, 226, 0.9);
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#togglePredictions:hover {
+    background: rgba(149, 54, 238, 1);
+}
+
+.prediction-entry {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.prediction-entry-label {
+    font-weight: 500;
+}
+
+.prediction-probability {
+    display: flex;
+    gap: 10px;
+}
+
+.probability-bar {
+    background: rgba(255, 255, 255, 0.2);
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.rest-probability, .sleep-probability {
+    height: 100%;
+    position: absolute;
+    top: 0;
+}
+
+.rest-probability {
+    background: linear-gradient(to right, #3498db, #2980b9);
+    left: 0;
+}
+
+.sleep-probability {
+    background: linear-gradient(to right, #e74c3c, #c0392b);
+    right: 0;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+    .metric-card {
+        min-width: 100px;
+        padding: 10px;
+    }
+    
+    .metric-value {
+        font-size: 1.5rem;
+    }
+    
+    .prediction-entry {
+        flex-direction: column;
+    }
+}
