@@ -227,9 +227,19 @@ function displayResults(data) {
             addPlot(plotContainer, 'EEG & fMRI Feature Distributions', visuals.feature_distributions);
         }
         
-        // Add confusion matrix if available
-        if (visuals.confusion_matrix) {
-            addPlot(plotContainer, 'Confusion Matrix', visuals.confusion_matrix);
+        // Add overall prediction distribution (pie chart)
+        if (visuals.overall_prediction) {
+            addPlot(plotContainer, 'Overall Prediction Distribution', visuals.overall_prediction);
+        }
+        
+        // Add probability heatmap
+        if (visuals.probability_heatmap) {
+            addPlot(plotContainer, 'Probability Heatmap', visuals.probability_heatmap);
+        }
+        
+        // Add feature importance
+        if (visuals.feature_importance) {
+            addPlot(plotContainer, 'Feature Importance', visuals.feature_importance);
         }
         
         // Add correlations
@@ -240,6 +250,21 @@ function displayResults(data) {
         // Add prediction distributions
         if (visuals.prediction_distributions) {
             addPlot(plotContainer, 'Prediction Distributions', visuals.prediction_distributions);
+        }
+        
+        // Add individual entry analysis
+        if (visuals.individual_entries) {
+            addPlot(plotContainer, 'Individual Entry Analysis', visuals.individual_entries);
+        }
+        
+        // Add time-series trends
+        if (visuals.time_series_trends) {
+            addPlot(plotContainer, 'Time-Series Trends', visuals.time_series_trends);
+        }
+        
+        // Add confusion matrix if available (for labeled data)
+        if (visuals.confusion_matrix) {
+            addPlot(plotContainer, 'Confusion Matrix', visuals.confusion_matrix);
         }
     }
     
@@ -491,9 +516,10 @@ function addProgressBarLegend(container) {
     sleepLegend.appendChild(sleepColor);
     sleepLegend.appendChild(sleepLabel);
     
-    // Add both legend items to the container
+    // Add both legends to the container
     legendContainer.appendChild(restLegend);
     legendContainer.appendChild(sleepLegend);
     
+    // Add the legend container to the main container
     container.appendChild(legendContainer);
 }

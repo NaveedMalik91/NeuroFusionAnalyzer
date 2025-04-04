@@ -261,15 +261,35 @@ def generate_visualizations(data, predictions, predictions_prob, has_labels=Fals
     fig_distributions = plot_feature_distributions(data)
     visualizations['feature_distributions'] = fig_to_base64(fig_distributions)
     
-    # We no longer include confusion matrix since we don't have ground truth labels
+    # Generate overall prediction distribution (pie chart)
+    fig_overall_pred = plot_overall_prediction_distribution(predictions)
+    visualizations['overall_prediction'] = fig_to_base64(fig_overall_pred)
     
-    # Generate feature correlation plot (no need to drop State column as it doesn't exist)
+    # Generate probability heatmap
+    fig_prob_heatmap = plot_probability_heatmap(predictions_prob)
+    visualizations['probability_heatmap'] = fig_to_base64(fig_prob_heatmap)
+    
+    # Generate feature importance visualization
+    fig_feature_importance = plot_feature_importance(data, predictions)
+    visualizations['feature_importance'] = fig_to_base64(fig_feature_importance)
+    
+    # Generate feature correlation plot
     fig_correlations = plot_feature_correlations(data)
     visualizations['feature_correlations'] = fig_to_base64(fig_correlations)
     
     # Generate prediction distribution plot
     fig_pred_dist = plot_prediction_distributions(predictions_prob)
     visualizations['prediction_distributions'] = fig_to_base64(fig_pred_dist)
+    
+    # Generate individual entry analysis (tabular visualization)
+    fig_individual_entries = plot_individual_entries(data, predictions, predictions_prob)
+    visualizations['individual_entries'] = fig_to_base64(fig_individual_entries)
+    
+    # Generate time-series trend plot if data is sequential
+    # Since we don't know if data is sequential, we'll create this plot anyway
+    # but with appropriate labeling
+    fig_time_series = plot_time_series_trends(data)
+    visualizations['time_series_trends'] = fig_to_base64(fig_time_series)
     
     return visualizations
 
@@ -404,6 +424,377 @@ def plot_prediction_distributions(pred_probs):
     ax.legend()
     
     plt.tight_layout()
+    return fig
+
+def plot_overall_prediction_distribution(predictions):
+    """
+    Plot a pie chart showing overall percentage of Sleep vs. Rest
+    
+    Parameters:
+    -----------
+    predictions : numpy.ndarray
+        Array of prediction class indices (0 for Rest, 1 for Sleep)
+        
+    Returns:
+    --------
+    matplotlib.figure.Figure
+        Figure containing the pie chart
+    """
+    # Count the number of predictions for each class
+    unique_classes, counts = np.unique(predictions, return_counts=True)
+    
+    # Map class indices to class names
+    class_names = []
+    for cls in unique_classes:
+        if cls < len(BRAIN_STATES):
+            class_names.append(BRAIN_STATES[cls])
+        else:
+            class_names.append(f'Class {cls}')
+    
+    # Calculate percentages
+    percentages = counts / np.sum(counts) * 100
+    
+    # Create labels with percentages
+    labels = [f'{name} ({pct:.1f}%)' for name, pct in zip(class_names, percentages)]
+    
+    # Create a figure
+    fig, ax = plt.subplots(figsize=(10, 8))
+    
+    # Define colors (blue for Rest, red for Sleep)
+    colors = ['#3498db', '#e74c3c']
+    
+    # Plot the pie chart
+    wedges, texts, autotexts = ax.pie(
+        counts, 
+        labels=labels,
+        autopct='%1.1f%%',
+        startangle=90,
+        colors=colors,
+        explode=[0.05] * len(unique_classes),  # Explode all slices slightly
+        shadow=True,
+        textprops={'fontsize': 12}
+    )
+    
+    # Enhance the appearance
+    plt.setp(autotexts, size=12, weight='bold')
+    
+    # Add title and legend
+    ax.set_title('Overall Distribution of Predicted Brain States', fontsize=16)
+    ax.legend(wedges, class_names, title="Brain States", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+    
+    plt.tight_layout()
+    
+    # Add description as text below the chart
+    plt.figtext(0.5, 0.01, 
+                "This pie chart shows the proportion of brain states classified as Rest vs. Sleep.\n"
+                "The distribution helps understand the overall pattern in the analyzed brain activity data.",
+                ha='center', fontsize=10, bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.7))
+    
+    return fig
+
+def plot_probability_heatmap(predictions_prob):
+    """
+    Plot a heatmap of predicted probabilities for Sleep vs. Rest across all entries
+    
+    Parameters:
+    -----------
+    predictions_prob : numpy.ndarray
+        Array of prediction probabilities for each class
+        
+    Returns:
+    --------
+    matplotlib.figure.Figure
+        Figure containing the heatmap
+    """
+    # Create a figure
+    fig, ax = plt.subplots(figsize=(12, 10))
+    
+    # Get number of samples and classes
+    num_samples = min(predictions_prob.shape[0], 20)  # Limit to at most 20 samples for readability
+    num_classes = predictions_prob.shape[1]
+    
+    # Extract the first 20 samples (or less if fewer samples)
+    prob_heatmap = predictions_prob[:num_samples, :]
+    
+    # Create a new array for the heatmap (transpose to have entries on y-axis and classes on x-axis)
+    heatmap_data = prob_heatmap.T
+    
+    # Plot the heatmap
+    im = ax.imshow(heatmap_data, cmap='RdBu_r', vmin=0, vmax=1, aspect='auto')
+    
+    # Add colorbar
+    cbar = plt.colorbar(im, ax=ax, orientation='vertical', shrink=0.8)
+    cbar.set_label('Prediction Probability', fontsize=12)
+    
+    # Set x and y labels
+    ax.set_xlabel('Data Entry', fontsize=14)
+    ax.set_ylabel('Brain State', fontsize=14)
+    
+    # Set x and y ticks
+    ax.set_xticks(np.arange(num_samples))
+    ax.set_xticklabels([f'Entry {i+1}' for i in range(num_samples)])
+    
+    ax.set_yticks(np.arange(num_classes))
+    ax.set_yticklabels(BRAIN_STATES[:num_classes])
+    
+    # Rotate the x tick labels for better readability
+    plt.setp(ax.get_xticklabels(), rotation=45, ha='right', rotation_mode='anchor')
+    
+    # Add probability values as text annotations
+    for i in range(num_classes):
+        for j in range(num_samples):
+            ax.text(j, i, f'{heatmap_data[i, j]:.2f}',
+                   ha='center', va='center',
+                   color='white' if heatmap_data[i, j] > 0.5 else 'black')
+    
+    # Add title
+    ax.set_title('Probability Heatmap of Brain States Across Entries', fontsize=16)
+    
+    plt.tight_layout()
+    
+    # Add description
+    plt.figtext(0.5, 0.01, 
+                "This heatmap displays the prediction probabilities for each entry and brain state.\n"
+                "Darker blue indicates higher probability of Rest, darker red indicates higher probability of Sleep.\n"
+                "This visualization helps identify the model's confidence in each prediction.",
+                ha='center', fontsize=10, bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.7))
+    
+    return fig
+
+def plot_feature_importance(data, predictions):
+    """
+    Plot a bar chart showing which features contributed most to predictions
+    
+    Parameters:
+    -----------
+    data : pandas.DataFrame
+        Input feature data
+    predictions : numpy.ndarray
+        Array of prediction class indices
+        
+    Returns:
+    --------
+    matplotlib.figure.Figure
+        Figure containing the feature importance bar chart
+    """
+    # Create a figure
+    fig, ax = plt.subplots(figsize=(12, 8))
+    
+    # Get feature names
+    feature_names = data.columns.tolist()
+    
+    # Since we don't have direct access to model coefficients, we'll calculate 
+    # feature importance based on correlation with the predictions
+    
+    # Convert predictions to a Series
+    pred_series = pd.Series(predictions, name='Predictions')
+    
+    # Calculate correlation between features and predictions
+    correlations = data.corrwith(pred_series).abs().sort_values(ascending=False)
+    
+    # Extract features and correlation values
+    features = correlations.index.tolist()
+    importance_values = correlations.values
+    
+    # Define colors for each feature (EEG features in blue, fMRI in orange)
+    colors = ['#3498db' if f not in ['BOLD Mean', 'BOLD Variance', 'ALFF Mean', 'ALFF Variance'] else '#e67e22' 
+              for f in features]
+    
+    # Create bar chart
+    bars = ax.bar(features, importance_values, color=colors)
+    
+    # Add labels and title
+    ax.set_xlabel('Features', fontsize=14)
+    ax.set_ylabel('Importance (Correlation Magnitude)', fontsize=14)
+    ax.set_title('Feature Importance for Brain State Prediction', fontsize=16)
+    
+    # Rotate x-axis labels
+    plt.xticks(rotation=45, ha='right')
+    
+    # Add value labels on top of bars
+    for bar in bars:
+        height = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                f'{height:.3f}', ha='center', va='bottom', fontsize=9)
+    
+    # Add a grid for better readability
+    ax.grid(axis='y', linestyle='--', alpha=0.7)
+    
+    # Add a legend
+    from matplotlib.patches import Patch
+    legend_elements = [
+        Patch(facecolor='#3498db', label='EEG Features'),
+        Patch(facecolor='#e67e22', label='fMRI Features')
+    ]
+    ax.legend(handles=legend_elements, loc='upper right')
+    
+    plt.tight_layout()
+    
+    # Add description
+    plt.figtext(0.5, 0.01, 
+                "This chart shows the importance of each feature in predicting brain states.\n"
+                "Higher values indicate stronger relationship between the feature and the predicted class.\n"
+                "This helps identify which measurements are most useful for distinguishing between Rest and Sleep.",
+                ha='center', fontsize=10, bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.7))
+    
+    return fig
+
+def plot_individual_entries(data, predictions, predictions_prob):
+    """
+    Create a visualization showing individual entries with their predictions
+    
+    Parameters:
+    -----------
+    data : pandas.DataFrame
+        Input feature data
+    predictions : numpy.ndarray
+        Array of prediction class indices
+    predictions_prob : numpy.ndarray
+        Array of prediction probabilities for each class
+        
+    Returns:
+    --------
+    matplotlib.figure.Figure
+        Figure containing the individual entry analysis
+    """
+    # Create a figure (use a larger figure for a table-like visualization)
+    fig, ax = plt.subplots(figsize=(14, 10))
+    
+    # Remove axes
+    ax.axis('off')
+    
+    # Determine number of entries to display (at most 5 for readability)
+    num_entries = min(5, len(predictions))
+    
+    # Create a new dataset with selected features and predictions
+    # Select a subset of features for display
+    selected_features = ['Delta Power', 'Theta Power', 'Alpha Power', 'Beta Power', 'BOLD Mean', 'ALFF Mean']
+    
+    # Prepare data for the table
+    table_data = []
+    
+    # Header row
+    header = ['Entry'] + selected_features + ['Predicted Class', 'Rest Prob.', 'Sleep Prob.']
+    table_data.append(header)
+    
+    # Data rows
+    for i in range(num_entries):
+        row = [f'Entry {i+1}']
+        
+        # Add selected feature values
+        for feature in selected_features:
+            row.append(f'{data.iloc[i][feature]:.3f}')
+        
+        # Add prediction and probabilities
+        pred_class = predictions[i]
+        pred_class_name = BRAIN_STATES[pred_class] if pred_class < len(BRAIN_STATES) else f'Class {pred_class}'
+        rest_prob = predictions_prob[i][0]
+        sleep_prob = predictions_prob[i][1]
+        
+        row.append(pred_class_name)
+        row.append(f'{rest_prob:.3f}')
+        row.append(f'{sleep_prob:.3f}')
+        
+        table_data.append(row)
+    
+    # Create a table
+    table = ax.table(
+        cellText=table_data[1:],
+        colLabels=table_data[0],
+        loc='center',
+        cellLoc='center',
+        colColours=['#f8f9fa'] * len(table_data[0]),
+        cellColours=[['#f8f9fa'] * 3 + 
+                   ['#d4edda' if predictions[i] == 0 else '#f8d7da'] * 1 + 
+                   ['#f8f9fa'] * (len(table_data[0])-4) 
+                   for i in range(num_entries)]
+    )
+    
+    # Style the table
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    table.scale(1.2, 1.5)
+    
+    # Add title
+    plt.suptitle('Individual Entry Analysis', fontsize=16, y=0.95)
+    
+    # Add subtitle explaining the coloring
+    plt.figtext(0.5, 0.89, 
+                "Predicted classes are color-coded: Green = Rest, Red = Sleep",
+                ha='center', fontsize=12)
+    
+    # Add description
+    plt.figtext(0.5, 0.05, 
+                "This table shows individual data entries with their feature values and predictions.\n"
+                "Only a subset of features is displayed for clarity.\n"
+                "This visualization helps understand how specific feature patterns relate to the predicted brain states.",
+                ha='center', fontsize=10, bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.7))
+    
+    plt.tight_layout()
+    return fig
+
+def plot_time_series_trends(data):
+    """
+    Plot time-series trends of key features across entries
+    
+    Parameters:
+    -----------
+    data : pandas.DataFrame
+        Input feature data
+        
+    Returns:
+    --------
+    matplotlib.figure.Figure
+        Figure containing the time-series plots
+    """
+    # Create a figure with a grid of subplots
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    axes = axes.flatten()
+    
+    # Select key features to plot from each category
+    eeg_features = ['Delta Power', 'Alpha Power']
+    fmri_features = ['BOLD Mean', 'ALFF Mean']
+    
+    # Create an x-axis representing entry sequence
+    x = np.arange(len(data))
+    
+    # Plot EEG features
+    for i, feature in enumerate(eeg_features):
+        ax = axes[i]
+        ax.plot(x, data[feature], marker='o', linestyle='-', color='#3498db', linewidth=2)
+        ax.set_title(f'{feature} Across Entries', fontsize=12)
+        ax.set_xlabel('Entry Sequence', fontsize=10)
+        ax.set_ylabel('Value', fontsize=10)
+        ax.grid(True, linestyle='--', alpha=0.7)
+        
+        # Add a note about sequential nature
+        if i == 0:
+            ax.text(0.5, 0.95, "Note: Assuming entries are sequential", 
+                   transform=ax.transAxes, ha='center', fontsize=9,
+                   bbox=dict(facecolor='yellow', alpha=0.2))
+    
+    # Plot fMRI features
+    for i, feature in enumerate(fmri_features):
+        ax = axes[i+2]
+        ax.plot(x, data[feature], marker='s', linestyle='-', color='#e67e22', linewidth=2)
+        ax.set_title(f'{feature} Across Entries', fontsize=12)
+        ax.set_xlabel('Entry Sequence', fontsize=10)
+        ax.set_ylabel('Value', fontsize=10)
+        ax.grid(True, linestyle='--', alpha=0.7)
+    
+    # Add an overall title
+    fig.suptitle('Time-Series Trends of Key Features', fontsize=16)
+    
+    # Adjust layout
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    
+    # Add description
+    plt.figtext(0.5, 0.01, 
+                "These plots show how key EEG and fMRI features change across data entries.\n"
+                "The plots assume that entries are in a meaningful sequence, which may not be the case.\n"
+                "This visualization helps identify patterns or trends in brain activity over the sequence.",
+                ha='center', fontsize=10, bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.7))
+    
     return fig
 
 def fig_to_base64(fig):
