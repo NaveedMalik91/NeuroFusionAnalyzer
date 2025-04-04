@@ -199,6 +199,9 @@ function displayResults(data) {
     detailedPredictions.innerHTML = '';
     
     if (data.predictions) {
+        // Add color legend for the progress bars
+        addProgressBarLegend(detailedPredictions);
+        
         const entries = Object.entries(data.predictions);
         // Only show first 20 entries if there are too many
         const displayEntries = entries.length > 20 ? entries.slice(0, 20) : entries;
@@ -336,4 +339,58 @@ function openReportDoc() {
 // Function to open research paper
 function openResearchPDF() {
     window.open('/static/assets/Research_paper.pdf', '_blank');
+}
+
+// Add a legend for the progress bar colors
+function addProgressBarLegend(container) {
+    const legendContainer = document.createElement('div');
+    legendContainer.className = 'progress-bar-legend';
+    legendContainer.style.display = 'flex';
+    legendContainer.style.alignItems = 'center';
+    legendContainer.style.justifyContent = 'center';
+    legendContainer.style.gap = '20px';
+    legendContainer.style.marginTop = '15px';
+    legendContainer.style.marginBottom = '10px';
+    
+    // Rest legend item
+    const restLegend = document.createElement('div');
+    restLegend.style.display = 'flex';
+    restLegend.style.alignItems = 'center';
+    restLegend.style.gap = '5px';
+    
+    const restColor = document.createElement('div');
+    restColor.style.width = '20px';
+    restColor.style.height = '20px';
+    restColor.style.borderRadius = '4px';
+    restColor.style.background = 'linear-gradient(to right, #3498db, #2980b9)';
+    
+    const restLabel = document.createElement('span');
+    restLabel.textContent = 'Rest State';
+    
+    restLegend.appendChild(restColor);
+    restLegend.appendChild(restLabel);
+    
+    // Sleep legend item
+    const sleepLegend = document.createElement('div');
+    sleepLegend.style.display = 'flex';
+    sleepLegend.style.alignItems = 'center';
+    sleepLegend.style.gap = '5px';
+    
+    const sleepColor = document.createElement('div');
+    sleepColor.style.width = '20px';
+    sleepColor.style.height = '20px';
+    sleepColor.style.borderRadius = '4px';
+    sleepColor.style.background = 'linear-gradient(to right, #e74c3c, #c0392b)';
+    
+    const sleepLabel = document.createElement('span');
+    sleepLabel.textContent = 'Sleep State';
+    
+    sleepLegend.appendChild(sleepColor);
+    sleepLegend.appendChild(sleepLabel);
+    
+    // Add both legend items to the container
+    legendContainer.appendChild(restLegend);
+    legendContainer.appendChild(sleepLegend);
+    
+    container.appendChild(legendContainer);
 }
