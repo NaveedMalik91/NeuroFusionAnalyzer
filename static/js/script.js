@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize particles.js
+    // Initialize particles.js - make sure this runs first
     if (document.getElementById('particles-js')) {
         particlesJS("particles-js", {
             particles: {
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Close menu when clicking outside
     document.addEventListener('click', function(event) {
         if (!event.target.closest('.nav-menu') && !event.target.closest('.hamburger')) {
-            if (navMenu.classList.contains('active')) {
+            if (navMenu && navMenu.classList.contains('active')) {
                 navMenu.classList.remove('active');
             }
         }
