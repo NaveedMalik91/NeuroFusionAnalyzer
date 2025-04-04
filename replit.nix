@@ -1,5 +1,9 @@
 {pkgs}: {
   deps = [
+    pkgs.xsimd
+    pkgs.libxcrypt
+    pkgs.openssh
+    pkgs.hdf5
     pkgs.tk
     pkgs.tcl
     pkgs.qhull
