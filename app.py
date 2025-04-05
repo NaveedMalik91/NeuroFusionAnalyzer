@@ -111,13 +111,7 @@ def predict_with_model(features):
             print(f"Using fusion model from: {model_path}")
             return h5_predict(model_path, features)
         else:
-            print(f"Model file not found at {model_path}, checking in attached_assets folder")
-            model_path = 'attached_assets/fusion_model.h5'
-            if os.path.exists(model_path):
-                print(f"Using fusion model from: {model_path}")
-                return h5_predict(model_path, features)
-            else:
-                print("Model file not found, falling back to heuristic prediction")
+            print("Model file not found, falling back to heuristic prediction")
     except Exception as e:
         print(f"Error loading or using model: {str(e)}")
         print("Falling back to heuristic prediction")
