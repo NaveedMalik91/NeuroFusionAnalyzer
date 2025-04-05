@@ -54,14 +54,12 @@ This application is configured for deployment on Render with the following speci
 
 ## Sample Data Format
 
-The application expects a CSV file with the following column structure (example with 3 rows):
+The application expects a CSV file with the following column structure (example with 3 rows). The data should be scaled with Standard Scaler.
 
 ```
-Delta Power,Theta Power,Alpha Power,Beta Power,Gamma Power,Spectral Entropy,Mean Coherence,BOLD Mean,BOLD Variance,ALFF Mean,ALFF Variance
-0.62,0.41,0.35,0.28,0.19,0.88,0.72,0.45,0.21,0.67,0.33
-0.78,0.52,0.31,0.22,0.15,0.91,0.68,0.51,0.28,0.72,0.38
-0.45,0.38,0.42,0.51,0.37,0.79,0.64,0.38,0.18,0.59,0.27
-```
+Delta Power  Theta  Power Alpha Power Beta Power  Gamma Power  Spectral Entropy  Mean Coherence  BOLD Mean  BOLD Variance  ALFF Mean  ALFF Variance
+0.62           0.41        0.35     0.28              0.19          0.88            0.72            0.45         0.21         0.67       0.33
+
 
 ## Error Handling
 
@@ -73,4 +71,4 @@ The application includes comprehensive error handling:
 
 ## License
 
-This project is proprietary and confidential. All rights reserved.
+All rights reserved.
