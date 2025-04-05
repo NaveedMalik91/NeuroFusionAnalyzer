@@ -799,6 +799,3 @@ def fig_to_base64(fig):
     img_data = base64.b64encode(img_buf.getvalue()).decode('utf-8')
     plt.close(fig)  # Close the figure to free memory
     return img_data
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
