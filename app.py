@@ -208,7 +208,6 @@ def process_data(data, has_labels=False):
     # Generate visualizations
     visualizations = generate_visualizations(data, predictions, predictions_prob, has_labels=False)
     
-    # Format predictions as requested by user
     # 1. Probability of Sleep vs. Rest for each entry
     entry_predictions = {}
     for i in range(len(predictions)):
