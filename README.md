@@ -6,6 +6,7 @@ This web application provides advanced analysis of EEG and fMRI data, using a ma
 
 The application uses a pre-trained neural network model (fusion_model.h5) to analyze EEG and fMRI data features and generate comprehensive visualizations and predictions about brain states.
 
+## Demo: 
 ## Features
 
 - **Real-time Data Analysis**: Upload CSV files containing EEG and fMRI features for immediate analysis
