@@ -1,0 +1,25 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Dataset or local scripts not needed on server
+EEG-FMRI-Processing_scripts+Dataset/
+
+# Local environment files
+.env
+*.env
+
+# IDE / OS files
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Python compiled / build files
+*.egg-info/
+dist/
+build/
+
+# Logs
+*.log
